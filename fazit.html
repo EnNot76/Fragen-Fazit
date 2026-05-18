@@ -44,7 +44,7 @@
     .result p strong{font-family:var(--titleFont);text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--muted)}
     .leak-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
     .f1-gauge-wrap{border-radius:22px;padding:14px 14px 10px;background:linear-gradient(180deg,#121212,#090909);border:1px solid var(--line-2)}
-    .f1-gauge-label{margin-bottom:8px;font-family:var(--titleFont);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .f1-gauge-label{margin-bottom:8px;font-family:var(--titleFont);font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
     .f1-gauge{width:100%;display:block}
     .legend{display:flex;justify-content:flex-end;gap:10px;margin-top:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
     .legend span{display:inline-flex;align-items:center;gap:5px}
@@ -137,7 +137,7 @@ function init() {
           <p><strong>Vorläufiges Profit Leak Ranking</strong><br>${topLeak ? `Der stärkste Hebel in Ihrem Quick Check ist aktuell der Bereich <strong>${topLeak}</strong>.` : 'Ihr Quick Check zeigt mehrere mögliche Gewinnhebel.'}</p>
           ${benchText ? `<p><strong>Ihre Benchmark-Einschätzung</strong><br>${benchText}</p>` : ''}
         </div>
-        <h2 class="section-title">Gewinn Hebel Ihrer 5 Profit Leaks</h2>
+        <h2 class="section-title">F1Tachometer Ihrer 5 Profit Leaks</h2>
         <p class="section-sub">Die SVG-Tachometer zeigen auf einen Blick, wo aktuell das größte Potenzial bzw. der stärkste Druck liegt. Gold markiert die jeweilige Ausprägung.</p>
         <div class="leak-grid">
           <div class="f1-gauge-wrap"><div class="f1-gauge-label">Pricing Lever</div><div id="gauge-pricing"></div></div>
@@ -146,7 +146,8 @@ function init() {
           <div class="f1-gauge-wrap"><div class="f1-gauge-label">Prozessverlust</div><div id="gauge-process"></div></div>
           <div class="f1-gauge-wrap"><div class="f1-gauge-label">Strategische Positionierung</div><div id="gauge-positioning"></div></div>
         </div>
-                <div class="cta" id="ctaBox">
+        <div class="legend"><span><span class="legend-dot"></span> stabil</span><span><span class="legend-dot"></span> im Blick behalten</span><span><span class="legend-dot"></span> Handlungsbedarf</span></div>
+        <div class="cta" id="ctaBox">
           <div class="cta-inner">
             <div class="cta-header"><div class="cta-title">Profit Leak Check PRO</div><div class="cta-status" id="ctaStatus">Aktiv nach Quick Check</div></div>
             <div class="cta-body" id="ctaBody">Empfohlener nächster Schritt. Auf Basis Ihres Quick Checks erhalten Sie eine erste Einschätzung Ihrer stärksten Gewinnhebel und können anschließend den Profit Leak Check PRO anfragen.</div>
