@@ -172,7 +172,7 @@ function init() {
         const subject = encodeURIComponent(`Profit Leak Check PRO Anfrage von ${company}`);
         const bodyLines = ['Guten Tag,','','ich möchte auf Basis des Profit Leak Quick Checks den Profit Leak Check PRO anfragen.','',`Unternehmen: ${company}`,`Benchmark: ${benchLabel}`,`Top Leak: ${topLeak}`,'','Bitte melden Sie sich für die Terminvereinbarung.','','Beste Grüße'];
         const body = encodeURIComponent(bodyLines.join('\n'));
-        const to = 'office@dein-unternehmen.de';
+        const to = 'info@one-pointzero.com';
         window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
       });
     }
