@@ -372,6 +372,106 @@
   }
 
   .hidden{display:none;}
+
+/* --- Toast & Result Card styles (nuove) --- */
+.toast-container{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  pointer-events:none;
+}
+
+.toast{
+  min-width:260px;
+  max-width:360px;
+  padding:12px 14px;
+  border-radius:16px;
+  box-shadow:0 14px 28px rgba(0,0,0,.18);
+  color:#fff;
+  font-size:14px;
+  line-height:1.4;
+  opacity:0;
+  transform:translateY(-8px);
+  transition:opacity .2s ease, transform .2s ease;
+  pointer-events:auto;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.toast.success{background:var(--good);}
+.toast.error{background:var(--bad);}
+.toast.info{background:var(--accent-secondary);}
+
+.result-card{
+  margin-top:16px;
+  background:linear-gradient(180deg,#ffffff,#f5f2ea);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:18px 16px;
+  box-shadow:var(--shadow-soft);
+}
+
+.result-card h2{
+  margin:0 0 10px;
+  font-family:var(--titleFont);
+  color:var(--accent-secondary);
+  font-size:24px;
+  text-align:center;
+}
+
+.result-card .grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.result-card .box{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:12px;
+}
+
+.result-card .label{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.result-card .value{
+  font-size:15px;
+  color:var(--text);
+  font-weight:700;
+}
+
+.result-card .full{
+  grid-column:1 / -1;
+}
+
+@media (max-width:680px){
+  .result-card .grid{
+    grid-template-columns:1fr;
+  }
+  .toast-container{
+    left:12px;
+    right:12px;
+    top:12px;
+  }
+  .toast{
+    min-width:0;
+    max-width:none;
+    width:100%;
+  }
+}
 </style></head>
 <body>
 <div class="wrap">
@@ -502,6 +602,10 @@
       <button class="danger" id="resetBtn" type="button">Zurücksetzen</button>
     </div>
   </div>
+
+  <!-- Contenitore per toast e risultato (aggiunti) -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+  <div id="resultCard" class="result-card hidden" role="region" aria-label="Ergebnis"></div>
 </div>
 
 <script>
@@ -728,7 +832,7 @@
 
   function scoreRiskMap(a){
     const leaks={pricing:0,cost:0,workingCapital:0,process:0,positioning:0};
-    const q1=a[0], q2=a[1]??2, q3=a[2], q4=a[3]||[], q5=a[4]??2, q6=a[5]||[], q7=a[6]||[], q8=a[7]??2, q9=a[8], q10=a[9]??2;
+    const q1=a, q2=a??2, q3=a, a [codepen](https://codepen.io/nndev/pen/OQxmoq), q4=a [harrisonbroadbent](https://harrisonbroadbent.com/blog/native-js-toast-notifications/)||[], q5=a [w3schools](https://www.w3schools.com/HOWTO/howto_js_snackbar.asp)??2, q6=a [codingartistweb](https://codingartistweb.com/2024/11/custom-toast-notification-html-css-javascript/)||[], q7=a [tutorialspoint](https://www.tutorialspoint.com/article/creating-a-dynamic-report-card-using-html-css-and-javascript)||[], q8=a [web](https://web.dev/articles/building/a-toast-component)??2, q9=a [geeksforgeeks](https://www.geeksforgeeks.org/javascript/how-to-create-a-dynamic-report-card-using-html-css-and-javascript/), q10=a [github](https://github.com/catdad/tiny.toast)??2;
     if(q1>=3) leaks.pricing+=1;
     if(q1>=4) leaks.pricing+=2;
     if(q1===5) leaks.pricing+=1;
@@ -776,20 +880,20 @@
 
   function leakRanking(leaks){
     return Object.entries(leaks)
-      .sort((a,b)=>b[1]-a[1])
-      .filter(x=>x[1]>0)
-      .map(x=>({key:x[0],score:x[1]}));
+      .sort((a,b)=>b-a) [reddit](https://www.reddit.com/r/Frontend/comments/jsn9op/how_can_i_make_a_simple_toast_with_only_js_html/)
+      .filter(x=>x>0) [reddit](https://www.reddit.com/r/Frontend/comments/jsn9op/how_can_i_make_a_simple_toast_with_only_js_html/)
+      .map(x=>({key:x,score:x})); [reddit](https://www.reddit.com/r/Frontend/comments/jsn9op/how_can_i_make_a_simple_toast_with_only_js_html/)
   }
 
   function readinessSummary(a){
-    return { urgency:a[10], openness:a[11], speed:a[12] };
+    return { urgency:a, openness:a, speed:a }; [dev](https://dev.to/phpcontrols/transform-html-table-into-card-view-using-nothing-but-css-17dc)
   }
 
   function buildPayload(){
     const answers = getAnswers();
     const leaks   = scoreRiskMap(answers);
     const ranking = leakRanking(leaks);
-    const top     = ranking[0];
+    const top     = ranking;
     const bench   = benchmarkLabelFrom(leaks);
 
     const topLeakText = top ? leakName(top.key) : "–";
@@ -873,6 +977,96 @@
     }
   }
 
+  // --- Nuove funzioni: toast e render card ---
+  function showToast(message, type = "info", duration = 3000){
+    const container = document.getElementById("toastContainer");
+    if(!container) return;
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.setAttribute("role","status");
+    toast.innerHTML = `<div>${message}</div>`;
+    container.appendChild(toast);
+
+    // trigger show animazione
+    requestAnimationFrame(() => toast.classList.add("show"));
+
+    // rimozione dopo durata
+    const hideAfter = Math.max(1500, duration);
+    const timeout = setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(()=>{ toast.remove(); }, 220);
+    }, hideAfter);
+
+    // allow click to dismiss earlier
+    toast.addEventListener("click", () => {
+      clearTimeout(timeout);
+      toast.classList.remove("show");
+      setTimeout(()=>{ toast.remove(); }, 200);
+    });
+  }
+
+  function renderResultCard(payload){
+    const resultCard = document.getElementById("resultCard");
+    const leaks = payload.leaks || {};
+    const ranking = Object.entries(leaks)
+      .sort((a,b)=>b-a) [reddit](https://www.reddit.com/r/Frontend/comments/jsn9op/how_can_i_make_a_simple_toast_with_only_js_html/)
+      .filter(x=>x>0); [reddit](https://www.reddit.com/r/Frontend/comments/jsn9op/how_can_i_make_a_simple_toast_with_only_js_html/)
+
+    const rankingHTML = ranking.length
+      ? ranking.map(([key,score]) => `<li><strong>${leakName(key)}</strong>: ${score}</li>`).join("")
+      : "<li>Keine Risiken ermittelt</li>";
+
+    resultCard.classList.remove("hidden");
+    resultCard.innerHTML = `
+      <h2>Ergebnis</h2>
+      <div class="grid" aria-hidden="false">
+        <div class="box">
+          <div class="label">Unternehmen</div>
+          <div class="value">${escapeHtml(payload.companyName)}</div>
+        </div>
+        <div class="box">
+          <div class="label">Top Leak</div>
+          <div class="value">${escapeHtml(payload.topLeak || "–")}</div>
+        </div>
+        <div class="box full">
+          <div class="label">Benchmark</div>
+          <div class="value">${escapeHtml(payload.benchmark || "–")}</div>
+        </div>
+        <div class="box full">
+          <div class="label">Ranking</div>
+          <div class="value">
+            <ul style="margin:8px 0 0; padding-left:18px;">${rankingHTML}</ul>
+          </div>
+        </div>
+        <div class="box full">
+          <div class="label">Nächster Schritt</div>
+          <div class="value">
+            ${payload.readiness?.speed ? "Bereitschaft erfasst." : "—"}
+          </div>
+        </div>
+      </div>
+    `;
+
+    resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function escapeHtml(str){
+    if(!str && str!==0) return "";
+    return String(str).replace(/[&<>"'`=\/]/g, function(s) {
+      return ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+      })[s];
+    });
+  }
+
+  // Event delegation per aggiornare pill attive e limiti multi
   document.addEventListener("change",e=>{
     if(e.target.matches('input[type="radio"],input[type="checkbox"],select,input,textarea')){
       if(e.target.matches('input[type="radio"],input[type="checkbox"]')) validateMultiLimits();
@@ -880,44 +1074,49 @@
     }
   });
 
-  document.getElementById("revealBtn").addEventListener("click",async ()=>{
-    const multiOk=validateMultiLimits();
+  // Override behaviour: mostra card invece di aprire popup e usa toast invece di alert
+  document.getElementById("revealBtn").addEventListener("click", async () => {
+    const multiOk = validateMultiLimits();
     if(!multiOk || !validateForm()) return;
 
     const payload = buildPayload();
 
     try{
       await loadCurrentBinAndAppend(payload);
-      alert("Quick Check erfolgreich gespeichert.\nIhr Ergebnis wird im Anschluss im PRO-Check verwendet. Bitte Pop-Up erlauben, Fazit wird geladen");
+      showToast("Quick Check erfolgreich gespeichert.", "success");
     }catch(err){
-      alert("Fehler beim Speichern in JSONBin: "+err.message);
+      showToast("Fehler beim Speichern in JSONBin: " + err.message, "error", 4500);
     }
 
-    const encoded = encodeURIComponent(JSON.stringify(payload));
-    window.open("fazit.html?data=" + encoded, "_blank");
+    renderResultCard(payload);
+    showToast("Ergebnis wurde angezeigt.", "info");
   });
 
-  document.getElementById("saveBtn").addEventListener("click",async()=>{
-    const multiOk=validateMultiLimits();
+  document.getElementById("saveBtn").addEventListener("click", async () => {
+    const multiOk = validateMultiLimits();
     if(!multiOk || !validateForm()) return;
+
     try{
       await loadCurrentBinAndAppend(buildPayload());
-      alert("Quick Check erfolgreich im gemeinsamen JSONBin gespeichert.");
+      showToast("Quick Check erfolgreich im gemeinsamen JSONBin gespeichert.", "success");
     }catch(err){
-      alert("Fehler beim Speichern in JSONBin: "+err.message);
+      showToast("Fehler beim Speichern in JSONBin: " + err.message, "error", 4500);
     }
   });
 
-  document.getElementById("resetBtn").addEventListener("click",()=>{
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
     document.querySelectorAll("input,textarea,select").forEach(el=>{
       if(el.type==="radio"||el.type==="checkbox") el.checked=false;
       else el.value="";
       el.classList.remove("invalid");
     });
     document.getElementById("otherIndustry").style.display="none";
+    document.getElementById("resultCard").classList.add("hidden");
+    document.getElementById("resultCard").innerHTML = "";
     clearError();
     updatePills();
     progressFill.style.width="0%";
+    showToast("Formular zurückgesetzt.", "info");
   });
 
   ["companyName","foundingYear","kontaktperson","telefonnummer","email","industry","turnover","profit","notes"].forEach(id=>{
