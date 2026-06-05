@@ -379,7 +379,7 @@
       ];
     }
 
-    function getTopLeakLabelForText(topLeak) {
+    function getTopLeakLabelForText(label) {
       const map = {
         'Pricing Leak': 'Pricing',
         'Cost Leak': 'Kostensteuerung',
@@ -387,7 +387,7 @@
         'Process Inefficiency': 'Abläufe',
         'Strategic Positioning Gap': 'Positionierung'
       };
-      return map[topLeak] || topLeak || 'einem relevanten Bereich';
+      return map[label] || label || 'einem relevanten Bereich';
     }
 
     function normalizeBenchmarkText(text) {
@@ -436,18 +436,18 @@
 
       // alle Leaks mit maximalem Score für den Top-Leak-Block
       let topLeakLabels = [];
+      let topLeakShort = 'einem relevanten Bereich';
       if (leakRanking.length) {
         const maxScore = leakRanking[0].score;
-        topLeakLabels = leakRanking
-          .filter(entry => entry.score === maxScore)
-          .map(entry => entry.label);
+        const topEntries = leakRanking.filter(entry => entry.score === maxScore);
+        topLeakLabels = topEntries.map(entry => entry.label);
+        // Für den Text nehmen wir den ersten und kürzen die Bezeichnung
+        topLeakShort = getTopLeakLabelForText(topEntries[0].label);
       }
 
       const company = payload.companyName || 'Ihr Unternehmen';
       const benchText = normalizeBenchmarkText(payload.benchmark || '');
       const benchLabel = benchText ? benchText.split('.')[0] : 'Benchmark';
-      const topLeak = payload.topLeak || 'nicht definiert';
-      const topLeakShort = getTopLeakLabelForText(topLeak);
       const meaningCards = getAreaMeaningCards();
 
       document.getElementById('heroSub').textContent =
@@ -469,7 +469,7 @@
               ${
                 topLeakLabels.length
                   ? topLeakLabels.join(', ')
-                  : topLeak
+                  : '–'
               }
             </div>
           </div>
@@ -573,7 +573,6 @@
       if (ctaButton) {
         ctaButton.addEventListener('click', function () {
           if (BOOKING_URL) {
-            // nuova scheda, user gesture → in genere non bloccato
             window.open(BOOKING_URL, '_blank', 'noopener,noreferrer');
             return;
           }
@@ -586,7 +585,6 @@
             '',
             `Unternehmen: ${company}`,
             `Benchmark-Level: ${benchLabel}`,
-            `Top Leak: ${topLeak}`,
             '',
             'Bitte melden Sie sich für eine Terminvereinbarung.',
             '',
