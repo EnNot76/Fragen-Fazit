@@ -313,13 +313,12 @@
       }
     }
 
-    function normLeak(v) {
-      const n = Number(v);
-      if (!Number.isFinite(n)) return 0;
-      if (n <= 1) return Math.max(0, Math.min(1, n));
-      if (n <= 4) return Math.max(0, Math.min(1, n / 4));
-      return Math.max(0, Math.min(1, n / 100));
-    }
+function normLeak(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  const maxScore = 4; // massimo teorico nel tuo scoreRiskMap
+  return Math.max(0, Math.min(1, n / maxScore));
+}
 
     function renderF1Gauge(containerId, value0to1) {
       const pct = Math.max(0, Math.min(1, Number(value0to1) || 0));
