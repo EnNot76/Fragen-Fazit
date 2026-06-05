@@ -434,6 +434,15 @@
       };
       const leakRanking = rankLeaks(leaks);
 
+      // alle Leaks mit maximalem Score für den Top-Leak-Block
+      let topLeakLabels = [];
+      if (leakRanking.length) {
+        const maxScore = leakRanking[0].score;
+        topLeakLabels = leakRanking
+          .filter(entry => entry.score === maxScore)
+          .map(entry => entry.label);
+      }
+
       const company = payload.companyName || 'Ihr Unternehmen';
       const benchText = normalizeBenchmarkText(payload.benchmark || '');
       const benchLabel = benchText ? benchText.split('.')[0] : 'Benchmark';
@@ -456,7 +465,13 @@
           </div>
           <div class="box">
             <div class="muted">Top Leak</div>
-            <div class="big" id="topLeakLabel">${topLeak}</div>
+            <div class="big" id="topLeakLabel">
+              ${
+                topLeakLabels.length
+                  ? topLeakLabels.join(', ')
+                  : topLeak
+              }
+            </div>
           </div>
         </div>
 
@@ -558,7 +573,7 @@
       if (ctaButton) {
         ctaButton.addEventListener('click', function () {
           if (BOOKING_URL) {
-            // nuova scheda / nuovo tab, user gesture → in genere non bloccato
+            // nuova scheda, user gesture → in genere non bloccato
             window.open(BOOKING_URL, '_blank', 'noopener,noreferrer');
             return;
           }
