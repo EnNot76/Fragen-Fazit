@@ -646,6 +646,18 @@
     }
 
     init();
+    // Geheime Funktion: Alt+P druckt den vollständigen Gewinn-Check (für PDF)
+document.addEventListener('keydown', function (e) {
+  // Nur im Fazit-Frame, nicht in eingebetteten Inputs etc. auslösen
+  const isAltP = e.altKey && (e.key === 'p' || e.key === 'P');
+  if (!isAltP) return;
+
+  e.preventDefault();
+  // Kleiner Timeout, damit der Bildschirm stabil ist, dann print()
+  setTimeout(function () {
+    window.print();
+  }, 150);
+});
   </script>
 </body>
 </html>
