@@ -313,12 +313,12 @@
       }
     }
 
-function normLeak(v) {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return 0;
-  const maxScore = 4; // massimo teorico nel tuo scoreRiskMap
-  return Math.max(0, Math.min(1, n / maxScore));
-}
+    function normLeak(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return 0;
+      const maxScore = 4; // linear auf 0–1
+      return Math.max(0, Math.min(1, n / maxScore));
+    }
 
     function renderF1Gauge(containerId, value0to1) {
       const pct = Math.max(0, Math.min(1, Number(value0to1) || 0));
@@ -426,7 +426,6 @@ function normLeak(v) {
         }));
     }
 
-    // qualitatives Label für Score
     function qualitativeLabel(score) {
       if (score <= 1) return 'leicht ausgeprägt';
       if (score === 2) return 'moderat ausgeprägt';
@@ -452,7 +451,6 @@ function normLeak(v) {
       };
       const leakRanking = rankLeaks(leaks);
 
-      // alle Leaks mit maximalem Score für den Top-Leak-Block
       let topLeakLabels = [];
       let topLeakShort = 'einem relevanten Bereich';
       if (leakRanking.length) {
@@ -481,7 +479,9 @@ function normLeak(v) {
             <div class="big" id="benchmarkLabel">${benchLabel}</div>
           </div>
           <div class="box">
-            <div class="muted">Top Leak</div>
+            <div class="muted">
+              ${topLeakLabels.length > 1 ? 'Top Leaks' : 'Top Leak'}
+            </div>
             <div class="big" id="topLeakLabel">
               ${
                 topLeakLabels.length
