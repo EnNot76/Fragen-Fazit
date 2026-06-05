@@ -24,43 +24,253 @@
       --bodyFont:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:var(--bodyFont);background:linear-gradient(180deg,#000 0%,#050505 100%);color:var(--text);padding:22px}
+    body{
+      margin:0;
+      font-family:var(--bodyFont);
+      background:linear-gradient(180deg,#000 0%,#050505 100%);
+      color:var(--text);
+      padding:22px
+    }
     .wrap{max-width:980px;margin:0 auto 40px}
-    .hero,.panel,.f1-gauge-wrap,.box,.result,.meaning-card,.cta{position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 18%), rgba(8,8,8,.78);border:1px solid var(--line);box-shadow:var(--shadow)}
-    .hero{border-radius:34px;padding:28px 24px;margin-bottom:18px;backdrop-filter: blur(16px)}
+    .hero,.panel,.f1-gauge-wrap,.box,.result,.meaning-card,.cta{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 18%), rgba(8,8,8,.78);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow)
+    }
+    .hero{
+      border-radius:34px;
+      padding:28px 24px;
+      margin-bottom:18px;
+      backdrop-filter: blur(16px)
+    }
     .hero-inner,.cta-inner{position:relative;z-index:1}
-    h1{margin:0 0 8px;font-family:var(--titleFont);font-weight:700;font-size:clamp(30px,4vw,44px);letter-spacing:.10em;text-transform:uppercase;color:var(--gold-2)}
-    .sub{margin:0;max-width:760px;font-size:16px;line-height:1.7;color:var(--muted)}
-    .panel{border-radius:var(--radius);padding:20px 18px;margin-bottom:18px;backdrop-filter: blur(14px)}
-    .section-title{margin:4px 0 6px;font-family:var(--titleFont);font-size:24px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-2)}
-    .section-sub{margin:0 0 12px;font-size:13px;color:var(--muted)}
-    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-    .box{border-radius:20px;padding:16px 12px;text-align:center;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 22%), rgba(17,17,17,.85);backdrop-filter: blur(10px);border:1px solid var(--line-2);transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease}
-    .box .muted{color:rgba(246,241,232,.7);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-family:var(--titleFont)}
-    .box .big{margin-top:7px;font-family:var(--titleFont);font-size:22px;letter-spacing:.04em;color:var(--gold)}
-    .result{border-radius:24px;padding:16px 16px 12px;background:linear-gradient(180deg,#121212,#070707);border:1px solid var(--line-2);margin-bottom:14px;min-height:120px}
-    .result h3{margin:0 0 8px;font-family:var(--titleFont);font-size:18px;letter-spacing:.06em;color:var(--gold-2)}
-    .result p{margin:5px 0;line-height:1.65;color:var(--text)}
-    .result p strong,.meaning-card strong{font-family:var(--titleFont);text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--muted)}
-    .leak-grid,.meaning-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
-    .f1-gauge-wrap,.meaning-card{border-radius:22px;padding:14px 14px 10px;background:linear-gradient(180deg,#121212,#090909);border:1px solid var(--line-2)}
-    .f1-gauge-label{margin-bottom:8px;font-family:var(--titleFont);font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    h1{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-weight:700;
+      font-size:clamp(30px,4vw,44px);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--gold-2)
+    }
+    .sub{
+      margin:0;
+      max-width:760px;
+      font-size:16px;
+      line-height:1.7;
+      color:var(--muted)
+    }
+    .panel{
+      border-radius:var(--radius);
+      padding:20px 18px;
+      margin-bottom:18px;
+      backdrop-filter: blur(14px)
+    }
+    .section-title{
+      margin:4px 0 6px;
+      font-family:var(--titleFont);
+      font-size:24px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--gold-2)
+    }
+    .section-sub{
+      margin:0 0 12px;
+      font-size:13px;
+      color:var(--muted)
+    }
+    .kpi{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:12px
+    }
+    .box{
+      border-radius:20px;
+      padding:16px 12px;
+      text-align:center;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 22%), rgba(17,17,17,.85);
+      backdrop-filter: blur(10px);
+      border:1px solid var(--line-2);
+      transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease
+    }
+    .box .muted{
+      color:rgba(246,241,232,.7);
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-family:var(--titleFont)
+    }
+    .box .big{
+      margin-top:7px;
+      font-family:var(--titleFont);
+      font-size:22px;
+      letter-spacing:.04em;
+      color:var(--gold)
+    }
+    .result{
+      border-radius:24px;
+      padding:16px 16px 12px;
+      background:linear-gradient(180deg,#121212,#070707);
+      border:1px solid var(--line-2);
+      margin-bottom:14px;
+      min-height:120px
+    }
+    .result h3{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-size:18px;
+      letter-spacing:.06em;
+      color:var(--gold-2)
+    }
+    .result p{
+      margin:5px 0;
+      line-height:1.65;
+      color:var(--text)
+    }
+    .result p strong,.meaning-card strong{
+      font-family:var(--titleFont);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-size:11px;
+      color:var(--muted)
+    }
+    .leak-grid,.meaning-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:8px
+    }
+    .f1-gauge-wrap,.meaning-card{
+      border-radius:22px;
+      padding:14px 14px 10px;
+      background:linear-gradient(180deg,#121212,#090909);
+      border:1px solid var(--line-2)
+    }
+    .f1-gauge-label{
+      margin-bottom:8px;
+      font-family:var(--titleFont);
+      font-size:14px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted)
+    }
     .f1-gauge{width:100%;display:block}
-    .meaning-card h3{margin:0 0 8px;font-family:var(--titleFont);font-size:16px;letter-spacing:.06em;color:var(--gold-2)}
-    .meaning-card p{margin:0;line-height:1.65;color:var(--text);font-size:14px}
-    .cta{margin-top:14px;border-radius:28px;padding:18px 16px 16px;background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 20%), rgba(7,7,7,.82);backdrop-filter: blur(14px);border:1px solid rgba(212,175,55,.28)}
-    .cta-title{font-family:var(--titleFont);font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-2)}
-    .cta-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-    .cta-status{padding:5px 11px;border-radius:999px;font-size:11px;font-family:var(--titleFont);letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(212,175,55,.4);background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#111;box-shadow:0 8px 18px rgba(212,175,55,.14)}
-    .cta-body{font-size:14px;line-height:1.7;color:rgba(246,241,232,.92);margin-bottom:10px}
+    .meaning-card h3{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-size:16px;
+      letter-spacing:.06em;
+      color:var(--gold-2)
+    }
+    .meaning-card p{
+      margin:0;
+      line-height:1.65;
+      color:var(--text);
+      font-size:14px
+    }
+    .cta{
+      margin-top:14px;
+      border-radius:28px;
+      padding:18px 16px 16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 20%), rgba(7,7,7,.82);
+      backdrop-filter: blur(14px);
+      border:1px solid rgba(212,175,55,.28)
+    }
+    .cta-title{
+      font-family:var(--titleFont);
+      font-size:18px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold-2)
+    }
+    .cta-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:8px;
+      flex-wrap:wrap
+    }
+    .cta-status{
+      padding:5px 11px;
+      border-radius:999px;
+      font-size:11px;
+      font-family:var(--titleFont);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      border:1px solid rgba(212,175,55,.4);
+      background:linear-gradient(135deg,var(--gold),var(--gold-2));
+      color:#111;
+      box-shadow:0 8px 18px rgba(212,175,55,.14)
+    }
+    .cta-body{
+      font-size:14px;
+      line-height:1.7;
+      color:rgba(246,241,232,.92);
+      margin-bottom:10px
+    }
     .cta-body p{margin:0 0 10px}
-    .cta-btn{margin-top:8px;background:linear-gradient(135deg,var(--gold-3),var(--gold),var(--gold-2));color:#090909;padding:12px 18px;border-radius:999px;font-size:13px;text-transform:uppercase;letter-spacing:.14em;font-family:var(--titleFont);font-weight:700;border:none;cursor:pointer;box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18)}
-    .small-note{margin-top:8px;font-size:11px;color:rgba(246,241,232,.68);line-height:1.6}
-    .error-message{padding:10px 12px;border-radius:14px;border:1px solid rgba(184,87,87,.4);background:rgba(184,87,87,.10);color:#ffcbcb;font-size:13px;margin-top:10px}
-    .close-row{display:flex;justify-content:flex-end;margin-top:16px}
-    .close-btn{background:transparent;color:var(--gold-2);border:1px solid rgba(212,175,55,.32);padding:10px 16px;border-radius:999px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-family:var(--titleFont);cursor:pointer}
-    @media (min-width:720px){.leak-grid{grid-template-columns:repeat(2,1fr)}.leak-grid div:last-child{grid-column:1/-1}.meaning-grid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:520px){body{padding:14px}.hero{padding:22px 18px}.panel{padding:16px 14px}.kpi{grid-template-columns:1fr}}
+    .cta-btn{
+      margin-top:8px;
+      background:linear-gradient(135deg,var(--gold-3),var(--gold),var(--gold-2));
+      color:#090909;
+      padding:12px 18px;
+      border-radius:999px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-family:var(--titleFont);
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18)
+    }
+    .small-note{
+      margin-top:8px;
+      font-size:11px;
+      color:rgba(246,241,232,.68);
+      line-height:1.6
+    }
+    .error-message{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(184,87,87,.4);
+      background:rgba(184,87,87,.10);
+      color:#ffcbcb;
+      font-size:13px;
+      margin-top:10px
+    }
+    .close-row{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:16px
+    }
+    .close-btn{
+      background:transparent;
+      color:var(--gold-2);
+      border:1px solid rgba(212,175,55,.32);
+      padding:10px 16px;
+      border-radius:999px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-family:var(--titleFont);
+      cursor:pointer
+    }
+    @media (min-width:720px){
+      .leak-grid{grid-template-columns:repeat(2,1fr)}
+      .leak-grid div:last-child{grid-column:1/-1}
+      .meaning-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:520px){
+      body{padding:14px}
+      .hero{padding:22px 18px}
+      .panel{padding:16px 14px}
+      .kpi{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -68,7 +278,9 @@
     <div class="hero">
       <div class="hero-inner">
         <h1>Gewinn Check Ergebnis</h1>
-        <p class="sub" id="heroSub">Auf Basis Ihres Quick Checks erhalten Sie hier eine erste Einordnung Ihrer sichtbaren Gewinn-, Liquiditäts- und Entlastungspotenziale.</p>
+        <p class="sub" id="heroSub">
+          Auf Basis Ihres Quick Checks erhalten Sie hier eine erste Einordnung Ihrer sichtbaren Gewinn-, Liquiditäts- und Entlastungspotenziale.
+        </p>
       </div>
     </div>
 
@@ -76,13 +288,18 @@
   </div>
 
   <script>
-    const BOOKING_URL = "#";
+    const BOOKING_URL = "https://outlook.office365.com/owa/calendar/GewninnHebel@one-pointzero.com/bookings/";
 
     function getPayloadFromQuery() {
       const params = new URLSearchParams(window.location.search);
       const raw = params.get('data');
       if (!raw) return null;
-      try { return JSON.parse(decodeURIComponent(raw)); } catch (e) { console.error('Fehler beim Lesen von data', e); return null; }
+      try {
+        return JSON.parse(decodeURIComponent(raw));
+      } catch (e) {
+        console.error('Fehler beim Lesen von data', e);
+        return null;
+      }
     }
 
     function normLeak(v) {
@@ -106,12 +323,32 @@
               <stop offset="100%" stop-color="#fff1b8" />
             </linearGradient>
           </defs>
-          <path d="M10,110 A90,90 0 0 1 190,110" fill="none" stroke="rgba(212,175,55,0.18)" stroke-width="16" stroke-linecap="round"/>
-          <path d="M10,110 A90,90 0 0 1 190,110" fill="none" stroke="url(#grad-${containerId})" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - (pct * 100)}"/>
-          <line x1="100" y1="110" x2="100" y2="28" stroke="#d4af37" stroke-width="4" stroke-linecap="round" transform="rotate(${angle} 100 110)"/>
+          <path d="M10,110 A90,90 0 0 1 190,110"
+                fill="none"
+                stroke="rgba(212,175,55,0.18)"
+                stroke-width="16"
+                stroke-linecap="round"/>
+          <path d="M10,110 A90,90 0 0 1 190,110"
+                fill="none"
+                stroke="url(#grad-${containerId})"
+                stroke-width="16"
+                stroke-linecap="round"
+                pathLength="100"
+                stroke-dasharray="100"
+                stroke-dashoffset="${100 - (pct * 100)}"/>
+          <line x1="100" y1="110" x2="100" y2="28"
+                stroke="#d4af37"
+                stroke-width="4"
+                stroke-linecap="round"
+                transform="rotate(${angle} 100 110)"/>
           <circle cx="100" cy="110" r="6" fill="#d4af37"/>
           <circle cx="100" cy="110" r="2.2" fill="#fff1bf"/>
-          <text x="100" y="81" text-anchor="middle" fill="#f6f1e8" font-family="Inter,system-ui" font-size="13" font-weight="600">${fillPct}%</text>
+          <text x="100" y="81"
+                text-anchor="middle"
+                fill="#f6f1e8"
+                font-family="Inter,system-ui"
+                font-size="13"
+                font-weight="600">${fillPct}%</text>
         </svg>`;
       const el = document.getElementById(containerId);
       if (el) el.innerHTML = svg;
@@ -161,6 +398,24 @@
       );
     }
 
+    function rankLeaks(leaks) {
+      const labels = {
+        pricing: 'Pricing Leak',
+        cost: 'Cost Leak',
+        workingCapital: 'Working Capital Drag',
+        process: 'Process Inefficiency',
+        positioning: 'Strategic Positioning Gap'
+      };
+      return Object.entries(leaks)
+        .filter(([, score]) => typeof score === 'number' && score > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([key, score]) => ({
+          key,
+          label: labels[key] || key,
+          score
+        }));
+    }
+
     function init() {
       const payload = getPayloadFromQuery();
       const panel = document.getElementById('contentPanel');
@@ -177,6 +432,7 @@
         process: normLeak(leaks.process),
         positioning: normLeak(leaks.positioning)
       };
+      const leakRanking = rankLeaks(leaks);
 
       const company = payload.companyName || 'Ihr Unternehmen';
       const benchText = normalizeBenchmarkText(payload.benchmark || '');
@@ -185,28 +441,56 @@
       const topLeakShort = getTopLeakLabelForText(topLeak);
       const meaningCards = getAreaMeaningCards();
 
-      document.getElementById('heroSub').textContent = `Ergebnis für ${company}: Ihr Gewinn Check zeigt, wo Gewinnpotenzial noch nicht vollständig genutzt wird.`;
+      document.getElementById('heroSub').textContent =
+        `Ergebnis für ${company}: Ihr Gewinn Check zeigt, wo Gewinnpotenzial noch nicht vollständig genutzt wird.`;
 
       panel.innerHTML = `
         <h2 class="section-title">Kurzüberblick</h2>
-        <p class="section-sub">Ergebnis für ${company}. Hier sehen Sie die erste Einordnung Ihres sichtbaren Potenzials sowie den aktuell stärksten Hebel.</p>
+        <p class="section-sub">
+          Ergebnis für ${company}. Hier sehen Sie die erste Einordnung Ihres sichtbaren Potenzials sowie den aktuell stärksten Hebel.
+        </p>
         <div class="kpi">
-          <div class="box"><div class="muted">Benchmark-Level</div><div class="big" id="benchmarkLabel">${benchLabel}</div></div>
-          <div class="box"><div class="muted">Top Leak</div><div class="big" id="topLeakLabel">${topLeak}</div></div>
+          <div class="box">
+            <div class="muted">Benchmark-Level</div>
+            <div class="big" id="benchmarkLabel">${benchLabel}</div>
+          </div>
+          <div class="box">
+            <div class="muted">Top Leak</div>
+            <div class="big" id="topLeakLabel">${topLeak}</div>
+          </div>
         </div>
 
         <h2 class="section-title">Tachometer Ihrer 5 Profit Leaks</h2>
-        <p class="section-sub">Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.</p>
+        <p class="section-sub">
+          Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.
+        </p>
         <div class="leak-grid">
-          <div class="f1-gauge-wrap"><div class="f1-gauge-label">Pricing Leak</div><div id="gauge-pricing"></div></div>
-          <div class="f1-gauge-wrap"><div class="f1-gauge-label">Cost Leak</div><div id="gauge-cost"></div></div>
-          <div class="f1-gauge-wrap"><div class="f1-gauge-label">Working Capital Drag</div><div id="gauge-working"></div></div>
-          <div class="f1-gauge-wrap"><div class="f1-gauge-label">Process Inefficiency</div><div id="gauge-process"></div></div>
-          <div class="f1-gauge-wrap"><div class="f1-gauge-label">Strategic Positioning Gap</div><div id="gauge-positioning"></div></div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Pricing Leak</div>
+            <div id="gauge-pricing"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Cost Leak</div>
+            <div id="gauge-cost"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Working Capital Drag</div>
+            <div id="gauge-working"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Process Inefficiency</div>
+            <div id="gauge-process"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Strategic Positioning Gap</div>
+            <div id="gauge-positioning"></div>
+          </div>
         </div>
 
         <h2 class="section-title">Was die Bereiche bedeuten</h2>
-        <p class="section-sub">Jeder Bereich steht für einen anderen Hebel, über den zusätzlicher Gewinn, mehr Liquidität oder spürbare Entlastung sichtbar werden kann.</p>
+        <p class="section-sub">
+          Jeder Bereich steht für einen anderen Hebel, über den zusätzlicher Gewinn, mehr Liquidität oder spürbare Entlastung sichtbar werden kann.
+        </p>
         <div class="meaning-grid">
           ${meaningCards.map(card => `
             <div class="meaning-card">
@@ -219,8 +503,26 @@
         <h2 class="section-title">Vorläufiges Profit Leak Ranking</h2>
         <div class="result" id="resultBox">
           <h3>${company}</h3>
-          <p><strong>Top Leak</strong><br>${topLeak ? `Das größte sichtbare Potenzial liegt aktuell im Bereich <strong>${topLeakShort}</strong>.` : 'Ihr Gewinn Check zeigt mehrere mögliche Potenzialbereiche.'}</p>
-          ${benchText ? `<p><strong>Ihre Benchmark-Einschätzung</strong><br>${benchText}</p>` : ''}
+          ${
+            leakRanking.length
+              ? `
+                <p><strong>Top Leaks</strong><br>
+                Das größte sichtbare Potenzial liegt aktuell im Bereich <strong>${topLeakShort}</strong>.
+                Zusätzlich zeigen sich weitere Ansatzpunkte für Gewinn- und Liquiditätspotenzial:</p>
+                <ul>
+                  ${leakRanking.map(entry => `
+                    <li>${entry.label} – sichtbare Ausprägung: ${entry.score}</li>
+                  `).join('')}
+                </ul>
+              `
+              : `<p><strong>Top Leaks</strong><br>
+                 Ihr Gewinn Check zeigt mehrere mögliche Potenzialbereiche, ohne einen klar dominanten Bereich.</p>`
+          }
+          ${
+            benchText
+              ? `<p><strong>Ihre Benchmark-Einschätzung</strong><br>${benchText}</p>`
+              : ''
+          }
         </div>
 
         <div class="cta" id="ctaBox">
@@ -235,13 +537,16 @@
               <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Profit Leak Check für Ihr Unternehmen lohnt.</p>
             </div>
             <button class="cta-btn" id="ctaButton">Ergebnis gemeinsam auswerten</button>
-            <div class="small-note" id="ctaNote">In 20 bis 30 Minuten schauen wir gemeinsam auf Ihr Ergebnis und prüfen, ob es nur normale Reibung ist — oder ob dort echtes Gewinn-, Liquiditäts- oder Zeitpotenzial liegt.</div>
+            <div class="small-note" id="ctaNote">
+              In 20 bis 30 Minuten schauen wir gemeinsam auf Ihr Ergebnis und prüfen, ob es nur normale Reibung ist — oder ob dort echtes Gewinn-, Liquiditäts- oder Zeitpotenzial liegt.
+            </div>
           </div>
         </div>
 
         <div class="close-row">
           <button type="button" class="close-btn" id="closeWindowBtn">Schließen</button>
-        </div>`;
+        </div>
+      `;
 
       renderF1Gauge('gauge-pricing', leaksNorm.pricing);
       renderF1Gauge('gauge-cost', leaksNorm.cost);
@@ -251,11 +556,13 @@
 
       const ctaButton = document.getElementById('ctaButton');
       if (ctaButton) {
-        ctaButton.addEventListener('click', function(){
-          if (BOOKING_URL && BOOKING_URL !== '#') {
+        ctaButton.addEventListener('click', function () {
+          if (BOOKING_URL) {
+            // nuova scheda / nuovo tab, user gesture → in genere non bloccato
             window.open(BOOKING_URL, '_blank', 'noopener,noreferrer');
             return;
           }
+
           const subject = encodeURIComponent(`Auswertung Gewinn Check von ${company}`);
           const bodyLines = [
             'Guten Tag,',
@@ -278,14 +585,16 @@
 
       const closeWindowBtn = document.getElementById('closeWindowBtn');
       if (closeWindowBtn) {
-        closeWindowBtn.addEventListener('click', function() {
+        closeWindowBtn.addEventListener('click', function () {
           if (window.parent && window.parent !== window) {
             try {
               const overlay = window.parent.document.getElementById('fazitOverlay');
               const frame = window.parent.document.getElementById('fazitFrame');
               if (overlay) overlay.classList.add('hidden');
               if (frame) frame.src = '';
-              if (window.parent.document && window.parent.document.body) window.parent.document.body.style.overflow = '';
+              if (window.parent.document && window.parent.document.body) {
+                window.parent.document.body.style.overflow = '';
+              }
               return;
             } catch (e) {}
           }
