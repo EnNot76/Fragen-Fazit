@@ -296,13 +296,6 @@
       transition:opacity .2s ease;
     }
 
-    .cta-btn.secondary{
-      background:transparent;
-      color:var(--gold-2);
-      border:1px solid rgba(212,175,55,.5);
-      box-shadow:none;
-    }
-
     .cta-btn:disabled{
       opacity:.7;
       cursor:wait;
@@ -929,11 +922,10 @@
               <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Gewinnhebel Check für Ihr Unternehmen lohnt.</p>
             </div>
             <div class="cta-buttons">
-              <button class="cta-btn" id="ctaBookingBtn">Ergebnis gemeinsam auswerten</button>
-              <button class="cta-btn secondary" id="ctaPdfBtn" type="button">Nur PDF lokal speichern</button>
+              <button class="cta-btn" id="ctaBookingBtn">Ergebnis gemeinsam auswerten!</button>
             </div>
             <div class="small-note" id="ctaNote">
-              Beim Klick auf den Hauptbutton wird das Ergebnis an die Hauptseite übergeben, dort als Druck-/PDF-Fenster geöffnet und anschließend das Buchungsfenster gestartet.
+              Beim Klick öffnet sich Ihr Ergebnis als Druck- bzw. PDF-Fenster.
             </div>
           </div>
         </div>
@@ -986,26 +978,6 @@
             bookingBtn.disabled = false;
             bookingBtn.textContent = originalText;
           }, 900);
-        });
-      }
-
-      const pdfBtn = document.getElementById('ctaPdfBtn');
-      if (pdfBtn) {
-        pdfBtn.addEventListener('click', async function () {
-          pdfBtn.disabled = true;
-          const originalText = pdfBtn.textContent;
-          pdfBtn.textContent = 'PDF wird erstellt...';
-
-          try {
-            await saveFazitPdf(company);
-          } catch (err) {
-            console.error('PDF konnte nicht erstellt werden', err);
-          } finally {
-            setTimeout(() => {
-              pdfBtn.disabled = false;
-              pdfBtn.textContent = originalText;
-            }, 900);
-          }
         });
       }
 
