@@ -290,11 +290,8 @@
   </div>
 
   <script>
-  const MESSAGE_TYPES = {
-    OPEN_BOOKING_WITH_PDF: "OPEN_BOOKING_WITH_PDF",
-    CLOSE_FAZIT: "CLOSE_FAZIT"
-  };
   const MAX_THEORETICAL_SCORE = 10;
+  const BOOKING_URL = "https://outlook.office365.com/owa/calendar/GewninnHebel@one-pointzero.com/bookings/";
 
   function getPayloadFromQuery() {
     const params = new URLSearchParams(window.location.search);
@@ -427,20 +424,246 @@
     return 'stark ausgeprägt';
   }
 
-  function requestBookingWithPdf(payload) {
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({
-        type: MESSAGE_TYPES.OPEN_BOOKING_WITH_PDF,
-        payload
-      }, '*');
-    } else {
-      window.print();
+  // stessa logica di stampa che avevi nel parent, ma usata qui
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function formatDateDE(value) {
+    try {
+      return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      }).format(new Date(value || Date.now()));
+    } catch {
+      return "";
     }
   }
 
+  function leakLabelMap(key) {
+    const map = {
+      pricing: "Pricing Leak",
+      cost: "Cost Leak",
+      workingCapital: "Working Capital Drag",
+      process: "Process Inefficiency",
+      positioning: "Strategic Positioning Gap"
+    };
+    return map[key] || key || "–";
+  }
+
+  function openPdfAndBookingFromFazit(payload) {
+    const printWin = window.open("", "_blank");
+    if (!printWin) {
+      alert("Pop-up wurde blockiert. Bitte Pop-ups für diese Seite erlauben.");
+      return;
+    }
+
+    const leaks = payload.leaks || {};
+    const ranking = Object.entries(leaks)
+      .filter(([, score]) => typeof score === "number" && score > 0)
+      .sort((a, b) => b[1] - a[1]);
+
+    const rankingHtml = ranking.length
+      ? `<ol>
+          ${ranking.map(([key, score]) => `
+            <li><strong>${escapeHtml(leakLabelMap(key))}</strong> – ${score} (${escapeHtml(qualitativeLabel(score))})</li>
+          `).join("")}
+        </ol>`
+      : `<p>Es zeigt sich kein klar dominanter Bereich.</p>`;
+
+    const notesHtml = payload.notes
+      ? `<div class="card">
+           <h2>Notizen / Kontext</h2>
+           <p>${escapeHtml(payload.notes).replace(/\n/g, "<br>")}</p>
+         </div>`
+      : "";
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="de">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Gewinn Check Ergebnis – ${escapeHtml(payload.companyName || "Unternehmen")}</title>
+        <style>
+          :root{
+            --gold:#8f6f1d;
+            --gold-light:#e6d7a7;
+            --ink:#1d1a14;
+            --muted:#6b6148;
+            --paper:#fffdf8;
+            --line:#e6d7a7;
+          }
+          *{box-sizing:border-box}
+          body{
+            margin:0;
+            font-family:Arial, Helvetica, sans-serif;
+            color:var(--ink);
+            background:#fff;
+            line-height:1.5;
+          }
+          .wrap{
+            max-width:900px;
+            margin:0 auto;
+            padding:24px;
+          }
+          h1,h2{
+            margin:0 0 10px;
+            color:var(--gold);
+          }
+          h1{
+            font-size:28px;
+            text-transform:uppercase;
+            letter-spacing:.04em;
+          }
+          h2{
+            font-size:18px;
+            margin-top:20px;
+          }
+          .sub{
+            color:var(--muted);
+            margin-bottom:18px;
+          }
+          .meta, .card{
+            border:1px solid var(--line);
+            background:var(--paper);
+            border-radius:14px;
+            padding:14px 16px;
+            margin-bottom:14px;
+          }
+          .meta-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:12px;
+          }
+          .meta strong{
+            display:block;
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            color:var(--muted);
+            margin-bottom:4px;
+          }
+          p, li{font-size:14px;}
+          ol, ul{
+            margin:10px 0 0 20px;
+            padding:0;
+          }
+          .actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin:20px 0 8px;
+          }
+          .actions button{
+            border:none;
+            border-radius:999px;
+            padding:10px 16px;
+            cursor:pointer;
+            font-weight:700;
+          }
+          .print-btn{background:#111;color:#fff;}
+          .close-btn{background:#e9e3d3;color:#111;}
+          @media print{
+            .actions{display:none;}
+            body{background:#fff;}
+            .wrap{max-width:none;padding:0;}
+          }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <h1>Gewinn Check Ergebnis</h1>
+          <p class="sub">Ergebnis für ${escapeHtml(payload.companyName || "Ihr Unternehmen")}.</p>
+
+          <div class="meta">
+            <div class="meta-grid">
+              <div>
+                <strong>Unternehmen</strong>
+                ${escapeHtml(payload.companyName || "")}
+              </div>
+              <div>
+                <strong>Datum</strong>
+                ${escapeHtml(formatDateDE(payload.timestamp))}
+              </div>
+              <div>
+                <strong>Benchmark</strong>
+                ${escapeHtml(payload.benchmark || "")}
+              </div>
+              <div>
+                <strong>Top Leak</strong>
+                ${escapeHtml(payload.topLeak || "")}
+              </div>
+              <div>
+                <strong>Kontaktperson</strong>
+                ${escapeHtml(payload.kontaktperson || "")}
+              </div>
+              <div>
+                <strong>E-Mail</strong>
+                ${escapeHtml(payload.email || "")}
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Vorläufiges Gewinnhebel Ranking</h2>
+            ${rankingHtml}
+          </div>
+
+          <div class="card">
+            <h2>Unternehmensprofil</h2>
+            <ul>
+              <li><strong>Branche</strong> ${escapeHtml(payload.industry || "")}</li>
+              <li><strong>Gründungsjahr</strong> ${escapeHtml(payload.foundingYear || "")}</li>
+              <li><strong>Jahresumsatzniveau</strong> ${escapeHtml(payload.turnover || "")}</li>
+              <li><strong>Jahresgewinn vor Steuern</strong> ${escapeHtml(payload.profit || "")}</li>
+              <li><strong>Telefon</strong> ${escapeHtml(payload.telefonnummer || "")}</li>
+            </ul>
+          </div>
+
+          ${notesHtml}
+
+          <div class="actions">
+            <button class="print-btn" onclick="window.print()">Drucken / als PDF speichern</button>
+            <button class="close-btn" onclick="window.close()">Fenster schließen</button>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
+    printWin.focus();
+
+    // Stampa, poi vai in derselben Fenster zur Buchung
+    setTimeout(() => {
+      try { printWin.print(); } catch (e) {}
+      try { printWin.location.href = BOOKING_URL; } catch (e) {}
+    }, 500);
+  }
+
   function requestClose() {
+    // chiudi solo l’overlay nel parent
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: MESSAGE_TYPES.CLOSE_FAZIT }, '*');
+      try {
+        const overlay = window.parent.document.getElementById('fazitOverlay');
+        const frame = window.parent.document.getElementById('fazitFrame');
+        if (overlay) overlay.classList.add('hidden');
+        if (frame) frame.src = '';
+        if (window.parent.document && window.parent.document.body) {
+          window.parent.document.body.style.overflow = '';
+        }
+      } catch (e) {
+        window.close();
+      }
     } else {
       window.close();
     }
@@ -607,7 +830,7 @@
     const bookingBtn = document.getElementById('ctaBookingBtn');
     if (bookingBtn) {
       bookingBtn.addEventListener('click', function () {
-        requestBookingWithPdf(payload);
+        openPdfAndBookingFromFazit(payload);
       });
     }
 
@@ -621,7 +844,7 @@
 
   init();
 
-  // Geheime Funktion: Alt+P druckt den vollständigen Gewinn-Check (für PDF)
+  // Alt+P: nur Druck (optional, puoi tenerlo)
   document.addEventListener('keydown', function (e) {
     const isAltP = e.altKey && (e.key === 'p' || e.key === 'P');
     if (!isAltP) return;
@@ -631,5 +854,7 @@
       window.print();
     }, 150);
   });
-</script></body>
+</script>
+
+</body>
 </html>
