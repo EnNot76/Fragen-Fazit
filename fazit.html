@@ -23,29 +23,42 @@
       --titleFont:'Cinzel',serif;
       --bodyFont:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:var(--bodyFont);
       background:linear-gradient(180deg,#000 0%,#050505 100%);
       color:var(--text);
-      padding:22px
+      padding:22px;
     }
-    .wrap{max-width:980px;margin:0 auto 40px}
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto 40px;
+    }
+
     .hero,.panel,.f1-gauge-wrap,.box,.result,.meaning-card,.cta{
       position:relative;
       overflow:hidden;
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 18%), rgba(8,8,8,.78);
       border:1px solid var(--line);
-      box-shadow:var(--shadow)
+      box-shadow:var(--shadow);
     }
+
     .hero{
       border-radius:34px;
       padding:28px 24px;
       margin-bottom:18px;
-      backdrop-filter: blur(16px)
+      backdrop-filter: blur(16px);
     }
-    .hero-inner,.cta-inner{position:relative;z-index:1}
+
+    .hero-inner,.cta-inner{
+      position:relative;
+      z-index:1;
+    }
+
     h1{
       margin:0 0 8px;
       font-family:var(--titleFont);
@@ -53,40 +66,46 @@
       font-size:clamp(30px,4vw,44px);
       letter-spacing:.10em;
       text-transform:uppercase;
-      color:var(--gold-2)
+      color:var(--gold-2);
     }
+
     .sub{
       margin:0;
       max-width:760px;
       font-size:16px;
       line-height:1.7;
-      color:var(--muted)
+      color:var(--muted);
     }
+
     .panel{
       border-radius:var(--radius);
       padding:20px 18px;
       margin-bottom:18px;
-      backdrop-filter: blur(14px)
+      backdrop-filter: blur(14px);
     }
+
     .section-title{
       margin:4px 0 6px;
       font-family:var(--titleFont);
       font-size:24px;
       letter-spacing:.08em;
       text-transform:uppercase;
-      color:var(--gold-2)
+      color:var(--gold-2);
     }
+
     .section-sub{
       margin:0 0 12px;
       font-size:13px;
-      color:var(--muted)
+      color:var(--muted);
     }
+
     .kpi{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:12px;
-      margin-bottom:12px
+      margin-bottom:12px;
     }
+
     .box{
       border-radius:20px;
       padding:16px 12px;
@@ -94,119 +113,154 @@
       background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 22%), rgba(17,17,17,.85);
       backdrop-filter: blur(10px);
       border:1px solid var(--line-2);
-      transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease
+      transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
     }
+
     .box .muted{
       color:rgba(246,241,232,.7);
       font-size:11px;
       letter-spacing:.12em;
       text-transform:uppercase;
-      font-family:var(--titleFont)
+      font-family:var(--titleFont);
     }
+
     .box .big{
       margin-top:7px;
       font-family:var(--titleFont);
       font-size:22px;
       letter-spacing:.04em;
-      color:var(--gold)
+      color:var(--gold);
     }
+
     .result{
       border-radius:24px;
       padding:16px 16px 12px;
       background:linear-gradient(180deg,#121212,#070707);
       border:1px solid var(--line-2);
       margin-bottom:14px;
-      min-height:120px
+      min-height:120px;
     }
+
     .result h3{
       margin:0 0 8px;
       font-family:var(--titleFont);
       font-size:18px;
       letter-spacing:.06em;
-      color:var(--gold-2)
+      color:var(--gold-2);
     }
+
     .result p{
       margin:5px 0;
       line-height:1.65;
-      color:var(--text)
+      color:var(--text);
     }
+
     .result p strong,.meaning-card strong{
       font-family:var(--titleFont);
       text-transform:uppercase;
       letter-spacing:.08em;
       font-size:11px;
-      color:var(--muted)
+      color:var(--muted);
     }
+
+    .result ul{
+      margin:10px 0 0 18px;
+      padding:0;
+      color:var(--text);
+    }
+
+    .result li{
+      margin:6px 0;
+      line-height:1.6;
+    }
+
     .leak-grid,.meaning-grid{
       display:grid;
       grid-template-columns:1fr;
       gap:12px;
-      margin-top:8px
+      margin-top:8px;
     }
+
     .f1-gauge-wrap,.meaning-card{
       border-radius:22px;
       padding:14px 14px 10px;
       background:linear-gradient(180deg,#121212,#090909);
-      border:1px solid var(--line-2)
+      border:1px solid var(--line-2);
     }
+
     .f1-gauge-label{
       margin-bottom:8px;
       font-family:var(--titleFont);
       font-size:14px;
       letter-spacing:.12em;
       text-transform:uppercase;
-      color:var(--muted)
+      color:var(--muted);
     }
-    .f1-gauge{width:100%;display:block}
+
+    .f1-gauge{
+      width:100%;
+      display:block;
+    }
+
     .meaning-card h3{
       margin:0 0 8px;
       font-family:var(--titleFont);
       font-size:16px;
       letter-spacing:.06em;
-      color:var(--gold-2)
+      color:var(--gold-2);
     }
+
     .meaning-card p{
       margin:0;
       line-height:1.65;
       color:var(--text);
-      font-size:14px
+      font-size:14px;
     }
+
     .cta{
       margin-top:14px;
       border-radius:28px;
       padding:18px 16px 16px;
       background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 20%), rgba(7,7,7,.82);
       backdrop-filter: blur(14px);
-      border:1px solid rgba(212,175,55,.28)
+      border:1px solid rgba(212,175,55,.28);
     }
+
     .cta-title{
       font-family:var(--titleFont);
       font-size:18px;
       letter-spacing:.14em;
       text-transform:uppercase;
-      color:var(--gold-2)
+      color:var(--gold-2);
     }
+
     .cta-header{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:8px;
       margin-bottom:8px;
-      flex-wrap:wrap
+      flex-wrap:wrap;
     }
+
     .cta-body{
       font-size:14px;
       line-height:1.7;
       color:rgba(246,241,232,.92);
-      margin-bottom:10px
+      margin-bottom:10px;
     }
-    .cta-body p{margin:0 0 10px}
+
+    .cta-body p{
+      margin:0 0 10px;
+    }
+
     .cta-buttons{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin-top:8px
+      margin-top:8px;
     }
+
     .cta-btn{
       background:linear-gradient(135deg,var(--gold-3),var(--gold),var(--gold-2));
       color:#090909;
@@ -219,14 +273,28 @@
       font-weight:700;
       border:none;
       cursor:pointer;
-      box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18)
+      box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18);
+      transition:transform .2s ease, opacity .2s ease, box-shadow .2s ease;
     }
+
+    .cta-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 18px 32px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+
+    .cta-btn:disabled{
+      opacity:.7;
+      cursor:wait;
+      transform:none;
+    }
+
     .small-note{
       margin-top:8px;
       font-size:11px;
       color:rgba(246,241,232,.68);
-      line-height:1.6
+      line-height:1.6;
     }
+
     .error-message{
       padding:10px 12px;
       border-radius:14px;
@@ -234,13 +302,15 @@
       background:rgba(184,87,87,.10);
       color:#ffcbcb;
       font-size:13px;
-      margin-top:10px
+      margin-top:10px;
     }
+
     .close-row{
       display:flex;
       justify-content:flex-end;
-      margin-top:16px
+      margin-top:16px;
     }
+
     .close-btn{
       background:transparent;
       color:var(--gold-2);
@@ -251,13 +321,47 @@
       text-transform:uppercase;
       letter-spacing:.12em;
       font-family:var(--titleFont);
-      cursor:pointer
+      cursor:pointer;
     }
+
+    .pdf-mode .cta,
+    .pdf-mode .close-row{
+      display:none !important;
+    }
+
+    .pdf-mode body{
+      padding:0;
+      background:#000;
+    }
+
+    @media print{
+      body{
+        padding:0;
+        background:#000;
+      }
+
+      .cta,
+      .close-row{
+        display:none !important;
+      }
+
+      .hero,.panel,.f1-gauge-wrap,.box,.result,.meaning-card{
+        box-shadow:none !important;
+      }
+    }
+
     @media (min-width:720px){
-      .leak-grid{grid-template-columns:repeat(2,1fr)}
-      .leak-grid div:last-child{grid-column:1/-1}
-      .meaning-grid{grid-template-columns:repeat(2,1fr)}
+      .leak-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+      .leak-grid div:last-child{
+        grid-column:1/-1;
+      }
+      .meaning-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
     }
+
     @media (max-width:520px){
       body{padding:14px}
       .hero{padding:22px 18px}
@@ -267,7 +371,7 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap" id="fazitContent">
     <div class="hero">
       <div class="hero-inner">
         <h1>Gewinn Check Ergebnis</h1>
@@ -279,6 +383,8 @@
 
     <div class="panel" id="contentPanel"></div>
   </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     const BOOKING_URL = "https://outlook.office365.com/owa/calendar/GewninnHebel@one-pointzero.com/bookings/";
@@ -413,6 +519,41 @@
       if (score === 2) return 'moderat ausgeprägt';
       if (score === 3 || score === 4) return 'deutlich ausgeprägt';
       return 'stark ausgeprägt';
+    }
+
+    async function saveFazitPdf(companyName) {
+      const source = document.getElementById('fazitContent');
+      if (!source || typeof html2pdf === 'undefined') return;
+
+      document.documentElement.classList.add('pdf-mode');
+
+      const safeCompany = (companyName || 'Gewinn-Check')
+        .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+
+      const opt = {
+        margin: [10, 10, 12, 10],
+        filename: `Gewinn-Check-${safeCompany}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#000000'
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
+
+      try {
+        await html2pdf().set(opt).from(source).save();
+      } finally {
+        document.documentElement.classList.remove('pdf-mode');
+      }
     }
 
     function init() {
@@ -553,7 +694,7 @@
               <button class="cta-btn" id="ctaBookingBtn">Ergebnis gemeinsam auswerten</button>
             </div>
             <div class="small-note" id="ctaNote">
-              In 20 bis 30 Minuten schauen wir gemeinsam auf Ihr Ergebnis und prüfen, ob es nur normale Reibung ist — oder ob dort echtes Gewinn-, Liquiditäts- oder Zeitpotenzial liegt.
+              Beim Klick wird zuerst automatisch Ihr Ergebnis als PDF heruntergeladen und danach das Buchungsfenster geöffnet.
             </div>
           </div>
         </div>
@@ -571,10 +712,27 @@
 
       const bookingBtn = document.getElementById('ctaBookingBtn');
       if (bookingBtn) {
-        bookingBtn.addEventListener('click', function () {
+        bookingBtn.addEventListener('click', async function () {
+          bookingBtn.disabled = true;
+          const originalText = bookingBtn.textContent;
+          bookingBtn.textContent = 'PDF wird erstellt...';
+
+          try {
+            await saveFazitPdf(company);
+          } catch (err) {
+            console.error('PDF konnte nicht erstellt werden', err);
+          }
+
+          bookingBtn.textContent = 'Kalender wird geöffnet...';
+
           if (BOOKING_URL) {
             window.open(BOOKING_URL, '_blank', 'noopener,noreferrer');
           }
+
+          setTimeout(() => {
+            bookingBtn.disabled = false;
+            bookingBtn.textContent = originalText;
+          }, 1200);
         });
       }
 
