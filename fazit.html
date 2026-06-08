@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gewinn Check Ergebnis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gold:#d4af37;
+      --gold-2:#f7e7a5;
+      --gold-3:#8f6f1d;
+      --black:#000;
+      --panel:#0b0b0b;
+      --line:rgba(212,175,55,.22);
+      --line-2:rgba(212,175,55,.10);
+      --text:#f6f1e8;
+      --muted:#b8b0a3;
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --radius:28px;
+      --titleFont:'Cinzel',serif;
+      --bodyFont:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--bodyFont);
+      background:linear-gradient(180deg,#000 0%,#050505 100%);
+      color:var(--text);
+      padding:22px;
+    }
+    .wrap{max-width:980px;margin:0 auto 40px}
+    .hero,.panel,.f1-gauge-wrap,.box,.result,.meaning-card,.cta{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 18%), rgba(8,8,8,.78);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      border-radius:34px;
+      padding:28px 24px;
+      margin-bottom:18px;
+      backdrop-filter: blur(16px);
+    }
+    .hero-inner,.cta-inner{position:relative;z-index:1}
+    h1{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-weight:700;
+      font-size:clamp(30px,4vw,44px);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--gold-2);
+    }
+    .sub{
+      margin:0;
+      max-width:760px;
+      font-size:16px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+    .panel{
+      border-radius:var(--radius);
+      padding:20px 18px;
+      margin-bottom:18px;
+      backdrop-filter: blur(14px);
+    }
+    .section-title{
+      margin:4px 0 6px;
+      font-family:var(--titleFont);
+      font-size:24px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--gold-2);
+    }
+    .section-sub{
+      margin:0 0 12px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .kpi{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .box{
+      border-radius:20px;
+      padding:16px 12px;
+      text-align:center;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 22%), rgba(17,17,17,.85);
+      backdrop-filter: blur(10px);
+      border:1px solid var(--line-2);
+      transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+    .box .muted{
+      color:rgba(246,241,232,.7);
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-family:var(--titleFont);
+    }
+    .box .big{
+      margin-top:7px;
+      font-family:var(--titleFont);
+      font-size:22px;
+      letter-spacing:.04em;
+      color:var(--gold);
+    }
+    .result{
+      border-radius:24px;
+      padding:16px 16px 12px;
+      background:linear-gradient(180deg,#121212,#070707);
+      border:1px solid var(--line-2);
+      margin-bottom:14px;
+      min-height:120px;
+    }
+    .result h3{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-size:18px;
+      letter-spacing:.06em;
+      color:var(--gold-2);
+    }
+    .result p{
+      margin:5px 0;
+      line-height:1.65;
+      color:var(--text);
+    }
+    .result ul{
+      margin:10px 0 0 18px;
+      padding:0;
+    }
+    .result li{
+      margin:6px 0;
+      line-height:1.55;
+      color:var(--text);
+    }
+    .result p strong,.meaning-card strong{
+      font-family:var(--titleFont);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .leak-grid,.meaning-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:8px;
+    }
+    .f1-gauge-wrap,.meaning-card{
+      border-radius:22px;
+      padding:14px 14px 10px;
+      background:linear-gradient(180deg,#121212,#090909);
+      border:1px solid var(--line-2);
+    }
+    .f1-gauge-label{
+      margin-bottom:8px;
+      font-family:var(--titleFont);
+      font-size:14px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .f1-gauge{width:100%;display:block}
+    .meaning-card h3{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-size:16px;
+      letter-spacing:.06em;
+      color:var(--gold-2);
+    }
+    .meaning-card p{
+      margin:0;
+      line-height:1.65;
+      color:var(--text);
+      font-size:14px;
+    }
+    .cta{
+      margin-top:14px;
+      border-radius:28px;
+      padding:18px 16px 16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 20%), rgba(7,7,7,.82);
+      backdrop-filter: blur(14px);
+      border:1px solid rgba(212,175,55,.28);
+    }
+    .cta-title{
+      font-family:var(--titleFont);
+      font-size:18px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold-2);
+    }
+    .cta-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .cta-body{
+      font-size:14px;
+      line-height:1.7;
+      color:rgba(246,241,232,.92);
+      margin-bottom:10px;
+    }
+    .cta-body p{margin:0 0 10px}
+    .cta-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+    .cta-btn{
+      background:linear-gradient(135deg,var(--gold-3),var(--gold),var(--gold-2));
+      color:#090909;
+      padding:12px 16px;
+      border-radius:999px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-family:var(--titleFont);
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .cta-btn.secondary{
+      background:transparent;
+      color:var(--gold-2);
+      border:1px solid rgba(212,175,55,.5);
+      box-shadow:none;
+    }
+    .small-note{
+      margin-top:8px;
+      font-size:11px;
+      color:rgba(246,241,232,.68);
+      line-height:1.6;
+    }
+    .error-message{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(184,87,87,.4);
+      background:rgba(184,87,87,.10);
+      color:#ffcbcb;
+      font-size:13px;
+      margin-top:10px;
+    }
+    .close-row{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:16px;
+    }
+    .close-btn{
+      background:transparent;
+      color:var(--gold-2);
+      border:1px solid rgba(212,175,55,.32);
+      padding:10px 16px;
+      border-radius:999px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-family:var(--titleFont);
+      cursor:pointer;
+    }
+    @media (min-width:720px){
+      .leak-grid{grid-template-columns:repeat(2,1fr)}
+      .leak-grid div:last-child{grid-column:1/-1}
+      .meaning-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:520px){
+      body{padding:14px}
+      .hero{padding:22px 18px}
+      .panel{padding:16px 14px}
+      .kpi{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-inner">
+        <h1>Gewinn Check Ergebnis</h1>
+        <p class="sub" id="heroSub">
+          Auf Basis Ihres Quick Checks erhalten Sie hier eine erste Einordnung Ihrer sichtbaren Gewinn-, Liquiditäts- und Entlastungspotenziale.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel" id="contentPanel"></div>
+  </div>
+
+  <script>
+    const MAX_THEORETICAL_SCORE = 10;
+    const BOOKING_URL = "https://outlook.office365.com/book/GewninnHebel@one-pointzero.com/";
+
+    function getPayloadFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('data');
+      if (!raw) return null;
+      try {
+        return JSON.parse(decodeURIComponent(raw));
+      } catch (e) {
+        console.error('Fehler beim Lesen von data', e);
+        return null;
+      }
+    }
+
+    function normLeak(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return 0;
+      return Math.max(0, Math.min(1, n / MAX_THEORETICAL_SCORE));
+    }
+
+    function renderF1Gauge(containerId, value0to1) {
+      const pct = Math.max(0, Math.min(1, Number(value0to1) || 0));
+      const angle = -90 + pct * 180;
+      const fillPct = Math.round(pct * 1000) / 10;
+      const svg = `
+        <svg viewBox="0 0 200 120" class="f1-gauge" aria-hidden="true">
+          <defs>
+            <linearGradient id="grad-${containerId}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7a5a12" />
+              <stop offset="45%" stop-color="#d4af37" />
+              <stop offset="100%" stop-color="#fff1b8" />
+            </linearGradient>
+          </defs>
+          <path d="M10,110 A90,90 0 0 1 190,110"
+                fill="none"
+                stroke="rgba(212,175,55,0.18)"
+                stroke-width="16"
+                stroke-linecap="round"/>
+          <path d="M10,110 A90,90 0 0 1 190,110"
+                fill="none"
+                stroke="url(#grad-${containerId})"
+                stroke-width="16"
+                stroke-linecap="round"
+                pathLength="100"
+                stroke-dasharray="100"
+                stroke-dashoffset="${100 - (pct * 100)}"/>
+          <line x1="100" y1="110" x2="100" y2="28"
+                stroke="#d4af37"
+                stroke-width="4"
+                stroke-linecap="round"
+                transform="rotate(${angle} 100 110)"/>
+          <circle cx="100" cy="110" r="6" fill="#d4af37"/>
+          <circle cx="100" cy="110" r="2.2" fill="#fff1bf"/>
+          <text x="100" y="81"
+                text-anchor="middle"
+                fill="#f6f1e8"
+                font-family="Inter,system-ui"
+                font-size="13"
+                font-weight="600">${fillPct}%</text>
+        </svg>`;
+      const el = document.getElementById(containerId);
+      if (el) el.innerHTML = svg;
+    }
+
+    function getAreaMeaningCards() {
+      return [
+        {
+          title: 'Pricing Leak',
+          text: 'Hier liegt Potenzial, den Wert Ihrer Leistung klarer sichtbar zu machen und besser in Marge zu übersetzen.'
+        },
+        {
+          title: 'Cost Leak',
+          text: 'Hier liegt Potenzial, Kosten transparenter zu steuern und mehr vom bestehenden Umsatz als Gewinn zu behalten.'
+        },
+        {
+          title: 'Working Capital Drag',
+          text: 'Hier liegt Potenzial, gebundene Liquidität freizusetzen und dem Unternehmen mehr finanziellen Spielraum zu geben.'
+        },
+        {
+          title: 'Process Inefficiency',
+          text: 'Hier liegt Potenzial, Zeit, Abstimmung und Abläufe zu entlasten, damit mehr Energie in wertschöpfende Arbeit fließt.'
+        },
+        {
+          title: 'Strategic Positioning Gap',
+          text: 'Hier liegt Potenzial, die richtigen Kunden, Leistungen und Märkte klarer zu fokussieren und dadurch profitabler zu wachsen.'
+        }
+      ];
+    }
+
+    function getTopLeakLabelForText(label) {
+      const map = {
+        'Pricing Leak': 'Pricing',
+        'Cost Leak': 'Kostensteuerung',
+        'Working Capital Drag': 'Liquidität',
+        'Process Inefficiency': 'Abläufe',
+        'Strategic Positioning Gap': 'Positionierung'
+      };
+      return map[label] || label || 'einem relevanten Bereich';
+    }
+
+    function normalizeBenchmarkText(text) {
+      if (!text) return '';
+      return text.replace(
+        'Das Unternehmen scheint an mehreren Stellen unter Druck zu stehen.',
+        'Das Unternehmen zeigt mehrere Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.'
+      );
+    }
+
+    function rankLeaks(leaks) {
+      const labels = {
+        pricing: 'Pricing Leak',
+        cost: 'Cost Leak',
+        workingCapital: 'Working Capital Drag',
+        process: 'Process Inefficiency',
+        positioning: 'Strategic Positioning Gap'
+      };
+      return Object.entries(leaks)
+        .filter(([, score]) => typeof score === 'number' && score > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([key, score]) => ({
+          key,
+          label: labels[key] || key,
+          score
+        }));
+    }
+
+    function qualitativeLabel(score) {
+      if (score <= 1) return 'leicht ausgeprägt';
+      if (score === 2) return 'moderat ausgeprägt';
+      if (score === 3 || score === 4) return 'deutlich ausgeprägt';
+      return 'stark ausgeprägt';
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatDateDE(value) {
+      try {
+        return new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        }).format(new Date(value || Date.now()));
+      } catch {
+        return "";
+      }
+    }
+
+    function leakLabelMap(key) {
+      const map = {
+        pricing: "Pricing Leak",
+        cost: "Cost Leak",
+        workingCapital: "Working Capital Drag",
+        process: "Process Inefficiency",
+        positioning: "Strategic Positioning Gap"
+      };
+      return map[key] || key || "–";
+    }
+
+    function openPdfWindowFromPayload(payload) {
+      const printWin = window.open("", "_blank");
+      if (!printWin) {
+        alert("Pop-up wurde blockiert. Bitte Pop-ups für diese Seite erlauben.");
+        return;
+      }
+
+      const leaks = payload.leaks || {};
+      const ranking = Object.entries(leaks)
+        .filter(([, score]) => typeof score === "number" && score > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+      const rankingHtml = ranking.length
+        ? `<ol>
+            ${ranking.map(([key, score]) => `
+              <li><strong>${escapeHtml(leakLabelMap(key))}</strong> – ${score} (${escapeHtml(qualitativeLabel(score))})</li>
+            `).join("")}
+          </ol>`
+        : `<p>Es zeigt sich kein klar dominanter Bereich.</p>`;
+
+      const notesHtml = payload.notes
+        ? `<div class="card">
+             <h2>Notizen / Kontext</h2>
+             <p>${escapeHtml(payload.notes).replace(/\n/g, "<br>")}</p>
+           </div>`
+        : "";
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <title>Gewinn Check Ergebnis – ${escapeHtml(payload.companyName || "Unternehmen")}</title>
+          <style>
+            :root{
+              --gold:#8f6f1d;
+              --gold-light:#e6d7a7;
+              --ink:#1d1a14;
+              --muted:#6b6148;
+              --paper:#fffdf8;
+              --line:#e6d7a7;
+            }
+            *{box-sizing:border-box}
+            body{
+              margin:0;
+              font-family:Arial, Helvetica, sans-serif;
+              color:var(--ink);
+              background:#fff;
+              line-height:1.5;
+            }
+            .wrap{
+              max-width:900px;
+              margin:0 auto;
+              padding:24px;
+            }
+            h1,h2{
+              margin:0 0 10px;
+              color:var(--gold);
+            }
+            h1{
+              font-size:28px;
+              text-transform:uppercase;
+              letter-spacing:.04em;
+            }
+            h2{
+              font-size:18px;
+              margin-top:20px;
+            }
+            .sub{
+              color:var(--muted);
+              margin-bottom:18px;
+            }
+            .meta, .card{
+              border:1px solid var(--line);
+              background:var(--paper);
+              border-radius:14px;
+              padding:14px 16px;
+              margin-bottom:14px;
+            }
+            .meta-grid{
+              display:grid;
+              grid-template-columns:repeat(2,minmax(0,1fr));
+              gap:12px;
+            }
+            .meta strong{
+              display:block;
+              font-size:12px;
+              text-transform:uppercase;
+              letter-spacing:.06em;
+              color:var(--muted);
+              margin-bottom:4px;
+            }
+            p, li{font-size:14px;}
+            ol, ul{
+              margin:10px 0 0 20px;
+              padding:0;
+            }
+            .actions{
+              display:flex;
+              gap:10px;
+              flex-wrap:wrap;
+              margin:20px 0 8px;
+            }
+            .actions button{
+              border:none;
+              border-radius:999px;
+              padding:10px 16px;
+              cursor:pointer;
+              font-weight:700;
+            }
+            .print-btn{background:#111;color:#fff;}
+            .close-btn{background:#e9e3d3;color:#111;}
+            @media print{
+              .actions{display:none;}
+              body{background:#fff;}
+              .wrap{max-width:none;padding:0;}
+            }
+          </style>
+        </head>
+        <body>
+          <div class="wrap">
+            <h1>Gewinn Check Ergebnis</h1>
+            <p class="sub">Ergebnis für ${escapeHtml(payload.companyName || "Ihr Unternehmen")}.</p>
+
+            <div class="meta">
+              <div class="meta-grid">
+                <div>
+                  <strong>Unternehmen</strong>
+                  ${escapeHtml(payload.companyName || "")}
+                </div>
+                <div>
+                  <strong>Datum</strong>
+                  ${escapeHtml(formatDateDE(payload.timestamp))}
+                </div>
+                <div>
+                  <strong>Benchmark</strong>
+                  ${escapeHtml(payload.benchmark || "")}
+                </div>
+                <div>
+                  <strong>Top Leak</strong>
+                  ${escapeHtml(payload.topLeak || "")}
+                </div>
+                <div>
+                  <strong>Kontaktperson</strong>
+                  ${escapeHtml(payload.kontaktperson || "")}
+                </div>
+                <div>
+                  <strong>E-Mail</strong>
+                  ${escapeHtml(payload.email || "")}
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Vorläufiges Gewinnhebel Ranking</h2>
+              ${rankingHtml}
+            </div>
+
+            <div class="card">
+              <h2>Unternehmensprofil</h2>
+              <ul>
+                <li><strong>Branche</strong> ${escapeHtml(payload.industry || "")}</li>
+                <li><strong>Gründungsjahr</strong> ${escapeHtml(payload.foundingYear || "")}</li>
+                <li><strong>Jahresumsatzniveau</strong> ${escapeHtml(payload.turnover || "")}</li>
+                <li><strong>Jahresgewinn vor Steuern</strong> ${escapeHtml(payload.profit || "")}</li>
+                <li><strong>Telefon</strong> ${escapeHtml(payload.telefonnummer || "")}</li>
+              </ul>
+            </div>
+
+            ${notesHtml}
+
+            <div class="actions">
+              <button class="print-btn" onclick="window.print()">Drucken / als PDF speichern</button>
+              <button class="close-btn" onclick="window.close()">Fenster schließen</button>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      printWin.document.open();
+      printWin.document.write(html);
+      printWin.document.close();
+      printWin.focus();
+    }
+
+    function requestClose() {
+      if (window.parent && window.parent !== window) {
+        try {
+          const overlay = window.parent.document.getElementById('fazitOverlay');
+          const frame = window.parent.document.getElementById('fazitFrame');
+          if (overlay) overlay.classList.add('hidden');
+          if (frame) frame.src = '';
+          if (window.parent.document && window.parent.document.body) {
+            window.parent.document.body.style.overflow = '';
+          }
+        } catch (e) {
+          window.close();
+        }
+      } else {
+        window.close();
+      }
+    }
+
+    function init() {
+      const payload = getPayloadFromQuery();
+      const panel = document.getElementById('contentPanel');
+      if (!payload) {
+        panel.innerHTML = '<div class="error-message">Kein Ergebnis gefunden. Bitte führen Sie den Gewinn Check erneut durch.</div>';
+        return;
+      }
+
+      const leaks = payload.leaks || {};
+      const leakRanking = rankLeaks(leaks);
+
+      const leaksNorm = {
+        pricing: normLeak(leaks.pricing),
+        cost: normLeak(leaks.cost),
+        working: normLeak(leaks.workingCapital),
+        process: normLeak(leaks.process),
+        positioning: normLeak(leaks.positioning)
+      };
+
+      let topLeakLabels = [];
+      let topLeakShort = 'einem relevanten Bereich';
+      if (leakRanking.length) {
+        const maxScore = leakRanking[0].score;
+        const topEntries = leakRanking.filter(entry => entry.score === maxScore);
+        topLeakLabels = topEntries.map(entry => entry.label);
+        topLeakShort = getTopLeakLabelForText(topEntries[0].label);
+      }
+
+      const company = payload.companyName || 'Ihr Unternehmen';
+      const benchText = normalizeBenchmarkText(payload.benchmark || '');
+      const benchLabel = benchText ? benchText.split('.')[0] : 'Benchmark';
+      const meaningCards = getAreaMeaningCards();
+
+      document.getElementById('heroSub').textContent =
+        `Ergebnis für ${company}: Ihr Gewinn Check zeigt, wo Gewinnpotenzial noch nicht vollständig genutzt wird.`;
+
+      panel.innerHTML = `
+        <h2 class="section-title">Kurzüberblick</h2>
+        <p class="section-sub">
+          Ergebnis für ${company}. Hier sehen Sie die erste Einordnung Ihres sichtbaren Potenzials sowie den aktuell stärksten Hebel.
+        </p>
+        <div class="kpi">
+          <div class="box">
+            <div class="muted">Benchmark-Level</div>
+            <div class="big" id="benchmarkLabel">${benchLabel}</div>
+          </div>
+          <div class="box">
+            <div class="muted">
+              ${topLeakLabels.length > 1 ? 'Top Leaks' : 'Top Leak'}
+            </div>
+            <div class="big" id="topLeakLabel">
+              ${
+                topLeakLabels.length
+                  ? topLeakLabels.join(', ')
+                  : '–'
+              }
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Tachometer Ihrer 5 Gewinnhebel</h2>
+        <p class="section-sub">
+          Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.
+        </p>
+        <div class="leak-grid">
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Pricing Leak</div>
+            <div id="gauge-pricing"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Cost Leak</div>
+            <div id="gauge-cost"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Working Capital Drag</div>
+            <div id="gauge-working"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Process Inefficiency</div>
+            <div id="gauge-process"></div>
+          </div>
+          <div class="f1-gauge-wrap">
+            <div class="f1-gauge-label">Strategic Positioning Gap</div>
+            <div id="gauge-positioning"></div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Was die Bereiche bedeuten</h2>
+        <p class="section-sub">
+          Jeder Bereich steht für einen anderen Hebel, über den zusätzlicher Gewinn, mehr Liquidität oder spürbare Entlastung sichtbar werden kann.
+        </p>
+        <div class="meaning-grid">
+          ${meaningCards.map(card => `
+            <div class="meaning-card">
+              <h3>${card.title}</h3>
+              <p>${card.text}</p>
+            </div>
+          `).join('')}
+        </div>
+
+        <h2 class="section-title">Vorläufiges Gewinnhebel Ranking</h2>
+        <div class="result" id="resultBox">
+          <h3>${company}</h3>
+          ${
+            leakRanking.length
+              ? `
+                <p><strong>Top Leaks</strong><br>
+                Das größte sichtbare Potenzial liegt aktuell im Bereich <strong>${topLeakShort}</strong>.
+                Zusätzlich zeigen sich weitere Ansatzpunkte für Gewinn- und Liquiditätspotenzial:</p>
+                <ul>
+                  ${leakRanking.map(entry => `
+                    <li>
+                      ${entry.label}
+                      – Ausprägung: ${entry.score} (${qualitativeLabel(entry.score)})
+                    </li>
+                  `).join('')}
+                </ul>
+              `
+              : `<p><strong>Top Leaks</strong><br>
+                 Ihr Gewinn Check zeigt mehrere mögliche Potenzialbereiche, ohne einen klar dominanten Bereich.</p>`
+          }
+          ${
+            benchText
+              ? `<p><strong>Ihre Benchmark-Einschätzung</strong><br>${benchText}</p>`
+              : ''
+          }
+        </div>
+
+        <div class="cta" id="ctaBox">
+          <div class="cta-inner" id="ctaInner">
+            <div class="cta-header">
+              <div class="cta-title">Nächster sinnvoller Schritt</div>
+            </div>
+            <div class="cta-body" id="ctaBody">
+              <p>Ihr Quick Check zeigt, wo in Ihrem Unternehmen wahrscheinlich zusätzliches Gewinn-, Liquiditäts- oder Entlastungspotenzial liegt.</p>
+              <p>Die vollständige Unternehmer Analyse geht einen Schritt weiter: Sie macht sichtbar, wie groß dieses Potenzial sein kann, welche Ursachen dahinterliegen und welcher erste Hebel wirtschaftlich am meisten Wirkung verspricht.</p>
+              <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Gewinnhebel Check für Ihr Unternehmen lohnt.</p>
+            </div>
+            <div class="cta-buttons" id="ctaButtons">
+              <button class="cta-btn" id="ctaBookingBtn">Termin buchen</button>
+              <button class="cta-btn secondary" id="ctaPdfBtn">Ergebniss gratis herunterladen</button>
+            </div>
+            <div class="small-note" id="ctaNote">
+              „Termin buchen“ öffnet die Buchungsmaske direkt hier im nächsten Schritt. „Ergebniss gratis herunterladen“ öffnet Ihr Ergebnis in einem separaten Fenster zum Drucken oder als PDF speichern.
+            </div>
+
+            <div class="panel" id="bookingPanel" style="display:none; margin-top:14px; border-radius:20px;">
+              <h2 class="section-title" style="font-size:18px;">Online-Terminbuchung</h2>
+              <div style="border-radius:18px; overflow:hidden; border:1px solid var(--line-2); background:#000; height:600px;">
+                <iframe
+                  id="bookingFrame"
+                  src="about:blank"
+                  title="Terminbuchung"
+                  style="width:100%; height:100%; border:none; background:#000;">
+                </iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="close-row">
+          <button type="button" class="close-btn" id="closeWindowBtn">Schließen</button>
+        </div>
+      `;
+
+      renderF1Gauge('gauge-pricing', leaksNorm.pricing);
+      renderF1Gauge('gauge-cost', leaksNorm.cost);
+      renderF1Gauge('gauge-working', leaksNorm.working);
+      renderF1Gauge('gauge-process', leaksNorm.process);
+      renderF1Gauge('gauge-positioning', leaksNorm.positioning);
+
+      const bookingBtn = document.getElementById('ctaBookingBtn');
+      const bookingPanel = document.getElementById('bookingPanel');
+      const bookingFrame = document.getElementById('bookingFrame');
+      const ctaBody = document.getElementById('ctaBody');
+      const ctaButtons = document.getElementById('ctaButtons');
+      const ctaNote = document.getElementById('ctaNote');
+
+      if (bookingBtn && bookingPanel && bookingFrame) {
+        bookingBtn.addEventListener('click', function () {
+          if (ctaBody) ctaBody.style.display = 'none';
+          if (ctaButtons) ctaButtons.style.display = 'none';
+          if (ctaNote) ctaNote.style.display = 'none';
+
+          bookingPanel.style.display = 'block';
+
+          if (!bookingFrame.dataset.loaded) {
+            bookingFrame.src = BOOKING_URL;
+            bookingFrame.dataset.loaded = "true";
+          }
+        });
+      }
+
+      const pdfBtn = document.getElementById('ctaPdfBtn');
+      if (pdfBtn) {
+        pdfBtn.addEventListener('click', function () {
+          openPdfWindowFromPayload(payload);
+        });
+      }
+
+      const closeWindowBtn = document.getElementById('closeWindowBtn');
+      if (closeWindowBtn) {
+        closeWindowBtn.addEventListener('click', function () {
+          requestClose();
+        });
+      }
+    }
+
+    init();
+
+    document.addEventListener('keydown', function (e) {
+      const isAltP = e.altKey && (e.key === 'p' || e.key === 'P');
+      if (!isAltP) return;
+
+      e.preventDefault();
+      setTimeout(function () {
+        window.print();
+      }, 150);
+    });
+  </script>
+</body>
+</html>
