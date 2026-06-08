@@ -290,346 +290,346 @@
   </div>
 
   <script>
-    const MESSAGE_TYPES = {
-      OPEN_BOOKING_WITH_PDF: "OPEN_BOOKING_WITH_PDF",
-      CLOSE_FAZIT: "CLOSE_FAZIT"
+  const MESSAGE_TYPES = {
+    OPEN_BOOKING_WITH_PDF: "OPEN_BOOKING_WITH_PDF",
+    CLOSE_FAZIT: "CLOSE_FAZIT"
+  };
+  const MAX_THEORETICAL_SCORE = 10;
+
+  function getPayloadFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('data');
+    if (!raw) return null;
+    try {
+      return JSON.parse(decodeURIComponent(raw));
+    } catch (e) {
+      console.error('Fehler beim Lesen von data', e);
+      return null;
+    }
+  }
+
+  function normLeak(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(1, n / MAX_THEORETICAL_SCORE));
+  }
+
+  function renderF1Gauge(containerId, value0to1) {
+    const pct = Math.max(0, Math.min(1, Number(value0to1) || 0));
+    const angle = -90 + pct * 180;
+    const fillPct = Math.round(pct * 1000) / 10;
+    const svg = `
+      <svg viewBox="0 0 200 120" class="f1-gauge" aria-hidden="true">
+        <defs>
+          <linearGradient id="grad-${containerId}" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7a5a12" />
+            <stop offset="45%" stop-color="#d4af37" />
+            <stop offset="100%" stop-color="#fff1b8" />
+          </linearGradient>
+        </defs>
+        <path d="M10,110 A90,90 0 0 1 190,110"
+              fill="none"
+              stroke="rgba(212,175,55,0.18)"
+              stroke-width="16"
+              stroke-linecap="round"/>
+        <path d="M10,110 A90,90 0 0 1 190,110"
+              fill="none"
+              stroke="url(#grad-${containerId})"
+              stroke-width="16"
+              stroke-linecap="round"
+              pathLength="100"
+              stroke-dasharray="100"
+              stroke-dashoffset="${100 - (pct * 100)}"/>
+        <line x1="100" y1="110" x2="100" y2="28"
+              stroke="#d4af37"
+              stroke-width="4"
+              stroke-linecap="round"
+              transform="rotate(${angle} 100 110)"/>
+        <circle cx="100" cy="110" r="6" fill="#d4af37"/>
+        <circle cx="100" cy="110" r="2.2" fill="#fff1bf"/>
+        <text x="100" y="81"
+              text-anchor="middle"
+              fill="#f6f1e8"
+              font-family="Inter,system-ui"
+              font-size="13"
+              font-weight="600">${fillPct}%</text>
+      </svg>`;
+    const el = document.getElementById(containerId);
+    if (el) el.innerHTML = svg;
+  }
+
+  function getAreaMeaningCards() {
+    return [
+      {
+        title: 'Pricing Leak',
+        text: 'Hier liegt Potenzial, den Wert Ihrer Leistung klarer sichtbar zu machen und besser in Marge zu übersetzen.'
+      },
+      {
+        title: 'Cost Leak',
+        text: 'Hier liegt Potenzial, Kosten transparenter zu steuern und mehr vom bestehenden Umsatz als Gewinn zu behalten.'
+      },
+      {
+        title: 'Working Capital Drag',
+        text: 'Hier liegt Potenzial, gebundene Liquidität freizusetzen und dem Unternehmen mehr finanziellen Spielraum zu geben.'
+      },
+      {
+        title: 'Process Inefficiency',
+        text: 'Hier liegt Potenzial, Zeit, Abstimmung und Abläufe zu entlasten, damit mehr Energie in wertschöpfende Arbeit fließt.'
+      },
+      {
+        title: 'Strategic Positioning Gap',
+        text: 'Hier liegt Potenzial, die richtigen Kunden, Leistungen und Märkte klarer zu fokussieren und dadurch profitabler zu wachsen.'
+      }
+    ];
+  }
+
+  function getTopLeakLabelForText(label) {
+    const map = {
+      'Pricing Leak': 'Pricing',
+      'Cost Leak': 'Kostensteuerung',
+      'Working Capital Drag': 'Liquidität',
+      'Process Inefficiency': 'Abläufe',
+      'Strategic Positioning Gap': 'Positionierung'
     };
-    const MAX_THEORETICAL_SCORE = 10;
+    return map[label] || label || 'einem relevanten Bereich';
+  }
 
-    function getPayloadFromQuery() {
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get('data');
-      if (!raw) return null;
-      try {
-        return JSON.parse(decodeURIComponent(raw));
-      } catch (e) {
-        console.error('Fehler beim Lesen von data', e);
-        return null;
-      }
+  function normalizeBenchmarkText(text) {
+    if (!text) return '';
+    return text.replace(
+      'Das Unternehmen scheint an mehreren Stellen unter Druck zu stehen.',
+      'Das Unternehmen zeigt mehrere Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.'
+    );
+  }
+
+  function rankLeaks(leaks) {
+    const labels = {
+      pricing: 'Pricing Leak',
+      cost: 'Cost Leak',
+      workingCapital: 'Working Capital Drag',
+      process: 'Process Inefficiency',
+      positioning: 'Strategic Positioning Gap'
+    };
+    return Object.entries(leaks)
+      .filter(([, score]) => typeof score === 'number' && score > 0)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, score]) => ({
+        key,
+        label: labels[key] || key,
+        score
+      }));
+  }
+
+  function qualitativeLabel(score) {
+    if (score <= 1) return 'leicht ausgeprägt';
+    if (score === 2) return 'moderat ausgeprägt';
+    if (score === 3 || score === 4) return 'deutlich ausgeprägt';
+    return 'stark ausgeprägt';
+  }
+
+  function requestBookingWithPdf(payload) {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: MESSAGE_TYPES.OPEN_BOOKING_WITH_PDF,
+        payload
+      }, '*');
+    } else {
+      window.print();
+    }
+  }
+
+  function requestClose() {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: MESSAGE_TYPES.CLOSE_FAZIT }, '*');
+    } else {
+      window.close();
+    }
+  }
+
+  function init() {
+    const payload = getPayloadFromQuery();
+    const panel = document.getElementById('contentPanel');
+    if (!payload) {
+      panel.innerHTML = '<div class="error-message">Kein Ergebnis gefunden. Bitte führen Sie den Gewinn Check erneut durch.</div>';
+      return;
     }
 
-    function normLeak(v) {
-      const n = Number(v);
-      if (!Number.isFinite(n)) return 0;
-      return Math.max(0, Math.min(1, n / MAX_THEORETICAL_SCORE));
+    const leaks = payload.leaks || {};
+    const leakRanking = rankLeaks(leaks);
+
+    const leaksNorm = {
+      pricing: normLeak(leaks.pricing),
+      cost: normLeak(leaks.cost),
+      working: normLeak(leaks.workingCapital),
+      process: normLeak(leaks.process),
+      positioning: normLeak(leaks.positioning)
+    };
+
+    let topLeakLabels = [];
+    let topLeakShort = 'einem relevanten Bereich';
+    if (leakRanking.length) {
+      const maxScore = leakRanking[0].score;
+      const topEntries = leakRanking.filter(entry => entry.score === maxScore);
+      topLeakLabels = topEntries.map(entry => entry.label);
+      topLeakShort = getTopLeakLabelForText(topEntries[0].label);
     }
 
-    function renderF1Gauge(containerId, value0to1) {
-      const pct = Math.max(0, Math.min(1, Number(value0to1) || 0));
-      const angle = -90 + pct * 180;
-      const fillPct = Math.round(pct * 1000) / 10;
-      const svg = `
-        <svg viewBox="0 0 200 120" class="f1-gauge" aria-hidden="true">
-          <defs>
-            <linearGradient id="grad-${containerId}" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#7a5a12" />
-              <stop offset="45%" stop-color="#d4af37" />
-              <stop offset="100%" stop-color="#fff1b8" />
-            </linearGradient>
-          </defs>
-          <path d="M10,110 A90,90 0 0 1 190,110"
-                fill="none"
-                stroke="rgba(212,175,55,0.18)"
-                stroke-width="16"
-                stroke-linecap="round"/>
-          <path d="M10,110 A90,90 0 0 1 190,110"
-                fill="none"
-                stroke="url(#grad-${containerId})"
-                stroke-width="16"
-                stroke-linecap="round"
-                pathLength="100"
-                stroke-dasharray="100"
-                stroke-dashoffset="${100 - (pct * 100)}"/>
-          <line x1="100" y1="110" x2="100" y2="28"
-                stroke="#d4af37"
-                stroke-width="4"
-                stroke-linecap="round"
-                transform="rotate(${angle} 100 110)"/>
-          <circle cx="100" cy="110" r="6" fill="#d4af37"/>
-          <circle cx="100" cy="110" r="2.2" fill="#fff1bf"/>
-          <text x="100" y="81"
-                text-anchor="middle"
-                fill="#f6f1e8"
-                font-family="Inter,system-ui"
-                font-size="13"
-                font-weight="600">${fillPct}%</text>
-        </svg>`;
-      const el = document.getElementById(containerId);
-      if (el) el.innerHTML = svg;
-    }
+    const company = payload.companyName || 'Ihr Unternehmen';
+    const benchText = normalizeBenchmarkText(payload.benchmark || '');
+    const benchLabel = benchText ? benchText.split('.')[0] : 'Benchmark';
+    const meaningCards = getAreaMeaningCards();
 
-    function getAreaMeaningCards() {
-      return [
-        {
-          title: 'Pricing Leak',
-          text: 'Hier liegt Potenzial, den Wert Ihrer Leistung klarer sichtbar zu machen und besser in Marge zu übersetzen.'
-        },
-        {
-          title: 'Cost Leak',
-          text: 'Hier liegt Potenzial, Kosten transparenter zu steuern und mehr vom bestehenden Umsatz als Gewinn zu behalten.'
-        },
-        {
-          title: 'Working Capital Drag',
-          text: 'Hier liegt Potenzial, gebundene Liquidität freizusetzen und dem Unternehmen mehr finanziellen Spielraum zu geben.'
-        },
-        {
-          title: 'Process Inefficiency',
-          text: 'Hier liegt Potenzial, Zeit, Abstimmung und Abläufe zu entlasten, damit mehr Energie in wertschöpfende Arbeit fließt.'
-        },
-        {
-          title: 'Strategic Positioning Gap',
-          text: 'Hier liegt Potenzial, die richtigen Kunden, Leistungen und Märkte klarer zu fokussieren und dadurch profitabler zu wachsen.'
+    document.getElementById('heroSub').textContent =
+      `Ergebnis für ${company}: Ihr Gewinn Check zeigt, wo Gewinnpotenzial noch nicht vollständig genutzt wird.`;
+
+    panel.innerHTML = `
+      <h2 class="section-title">Kurzüberblick</h2>
+      <p class="section-sub">
+        Ergebnis für ${company}. Hier sehen Sie die erste Einordnung Ihres sichtbaren Potenzials sowie den aktuell stärksten Hebel.
+      </p>
+      <div class="kpi">
+        <div class="box">
+          <div class="muted">Benchmark-Level</div>
+          <div class="big" id="benchmarkLabel">${benchLabel}</div>
+        </div>
+        <div class="box">
+          <div class="muted">
+            ${topLeakLabels.length > 1 ? 'Top Leaks' : 'Top Leak'}
+          </div>
+          <div class="big" id="topLeakLabel">
+            ${
+              topLeakLabels.length
+                ? topLeakLabels.join(', ')
+                : '–'
+            }
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Tachometer Ihrer 5 Gewinnhebel</h2>
+      <p class="section-sub">
+        Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.
+      </p>
+      <div class="leak-grid">
+        <div class="f1-gauge-wrap">
+          <div class="f1-gauge-label">Pricing Leak</div>
+          <div id="gauge-pricing"></div>
+        </div>
+        <div class="f1-gauge-wrap">
+          <div class="f1-gauge-label">Cost Leak</div>
+          <div id="gauge-cost"></div>
+        </div>
+        <div class="f1-gauge-wrap">
+          <div class="f1-gauge-label">Working Capital Drag</div>
+          <div id="gauge-working"></div>
+        </div>
+        <div class="f1-gauge-wrap">
+          <div class="f1-gauge-label">Process Inefficiency</div>
+          <div id="gauge-process"></div>
+        </div>
+        <div class="f1-gauge-wrap">
+          <div class="f1-gauge-label">Strategic Positioning Gap</div>
+          <div id="gauge-positioning"></div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Was die Bereiche bedeuten</h2>
+      <p class="section-sub">
+        Jeder Bereich steht für einen anderen Hebel, über den zusätzlicher Gewinn, mehr Liquidität oder spürbare Entlastung sichtbar werden kann.
+      </p>
+      <div class="meaning-grid">
+        ${meaningCards.map(card => `
+          <div class="meaning-card">
+            <h3>${card.title}</h3>
+            <p>${card.text}</p>
+          </div>
+        `).join('')}
+      </div>
+
+      <h2 class="section-title">Vorläufiges Gewinnhebel Ranking</h2>
+      <div class="result" id="resultBox">
+        <h3>${company}</h3>
+        ${
+          leakRanking.length
+            ? `
+              <p><strong>Top Leaks</strong><br>
+              Das größte sichtbare Potenzial liegt aktuell im Bereich <strong>${topLeakShort}</strong>.
+              Zusätzlich zeigen sich weitere Ansatzpunkte für Gewinn- und Liquiditätspotenzial:</p>
+              <ul>
+                ${leakRanking.map(entry => `
+                  <li>
+                    ${entry.label}
+                    – Ausprägung: ${entry.score} (${qualitativeLabel(entry.score)})
+                  </li>
+                `).join('')}
+              </ul>
+            `
+            : `<p><strong>Top Leaks</strong><br>
+               Ihr Gewinn Check zeigt mehrere mögliche Potenzialbereiche, ohne einen klar dominanten Bereich.</p>`
         }
-      ];
-    }
+        ${
+          benchText
+            ? `<p><strong>Ihre Benchmark-Einschätzung</strong><br>${benchText}</p>`
+            : ''
+        }
+      </div>
 
-    function getTopLeakLabelForText(label) {
-      const map = {
-        'Pricing Leak': 'Pricing',
-        'Cost Leak': 'Kostensteuerung',
-        'Working Capital Drag': 'Liquidität',
-        'Process Inefficiency': 'Abläufe',
-        'Strategic Positioning Gap': 'Positionierung'
-      };
-      return map[label] || label || 'einem relevanten Bereich';
-    }
-
-    function normalizeBenchmarkText(text) {
-      if (!text) return '';
-      return text.replace(
-        'Das Unternehmen scheint an mehreren Stellen unter Druck zu stehen.',
-        'Das Unternehmen zeigt mehrere Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.'
-      );
-    }
-
-    function rankLeaks(leaks) {
-      const labels = {
-        pricing: 'Pricing Leak',
-        cost: 'Cost Leak',
-        workingCapital: 'Working Capital Drag',
-        process: 'Process Inefficiency',
-        positioning: 'Strategic Positioning Gap'
-      };
-      return Object.entries(leaks)
-        .filter(([, score]) => typeof score === 'number' && score > 0)
-        .sort((a, b) => b[1] - a[1])
-        .map(([key, score]) => ({
-          key,
-          label: labels[key] || key,
-          score
-        }));
-    }
-
-    function qualitativeLabel(score) {
-      if (score <= 1) return 'leicht ausgeprägt';
-      if (score === 2) return 'moderat ausgeprägt';
-      if (score === 3 || score === 4) return 'deutlich ausgeprägt';
-      return 'stark ausgeprägt';
-    }
-
-    function requestBookingWithPdf(payload) {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({
-          type: MESSAGE_TYPES.OPEN_BOOKING_WITH_PDF,
-          payload
-        }, '*');
-      } else {
-        window.print();
-      }
-    }
-
-    function requestClose() {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: MESSAGE_TYPES.CLOSE_FAZIT }, '*');
-      } else {
-        window.close();
-      }
-    }
-
-    function init() {
-      const payload = getPayloadFromQuery();
-      const panel = document.getElementById('contentPanel');
-      if (!payload) {
-        panel.innerHTML = '<div class="error-message">Kein Ergebnis gefunden. Bitte führen Sie den Gewinn Check erneut durch.</div>';
-        return;
-      }
-
-      const leaks = payload.leaks || {};
-      const leakRanking = rankLeaks(leaks);
-
-      const leaksNorm = {
-        pricing: normLeak(leaks.pricing),
-        cost: normLeak(leaks.cost),
-        working: normLeak(leaks.workingCapital),
-        process: normLeak(leaks.process),
-        positioning: normLeak(leaks.positioning)
-      };
-
-      let topLeakLabels = [];
-      let topLeakShort = 'einem relevanten Bereich';
-      if (leakRanking.length) {
-        const maxScore = leakRanking[0].score;
-        const topEntries = leakRanking.filter(entry => entry.score === maxScore);
-        topLeakLabels = topEntries.map(entry => entry.label);
-        topLeakShort = getTopLeakLabelForText(topEntries[0].label);
-      }
-
-      const company = payload.companyName || 'Ihr Unternehmen';
-      const benchText = normalizeBenchmarkText(payload.benchmark || '');
-      const benchLabel = benchText ? benchText.split('.')[0] : 'Benchmark';
-      const meaningCards = getAreaMeaningCards();
-
-      document.getElementById('heroSub').textContent =
-        `Ergebnis für ${company}: Ihr Gewinn Check zeigt, wo Gewinnpotenzial noch nicht vollständig genutzt wird.`;
-
-      panel.innerHTML = `
-        <h2 class="section-title">Kurzüberblick</h2>
-        <p class="section-sub">
-          Ergebnis für ${company}. Hier sehen Sie die erste Einordnung Ihres sichtbaren Potenzials sowie den aktuell stärksten Hebel.
-        </p>
-        <div class="kpi">
-          <div class="box">
-            <div class="muted">Benchmark-Level</div>
-            <div class="big" id="benchmarkLabel">${benchLabel}</div>
+      <div class="cta" id="ctaBox">
+        <div class="cta-inner">
+          <div class="cta-header">
+            <div class="cta-title">Nächster sinnvoller Schritt</div>
           </div>
-          <div class="box">
-            <div class="muted">
-              ${topLeakLabels.length > 1 ? 'Top Leaks' : 'Top Leak'}
-            </div>
-            <div class="big" id="topLeakLabel">
-              ${
-                topLeakLabels.length
-                  ? topLeakLabels.join(', ')
-                  : '–'
-              }
-            </div>
+          <div class="cta-body" id="ctaBody">
+            <p>Ihr Quick Check zeigt, wo in Ihrem Unternehmen wahrscheinlich zusätzliches Gewinn-, Liquiditäts- oder Entlastungspotenzial liegt.</p>
+            <p>Die vollständige Unternehmer Analyse geht einen Schritt weiter: Sie macht sichtbar, wie groß dieses Potenzial sein kann, welche Ursachen dahinterliegen und welcher erste Hebel wirtschaftlich am meisten Wirkung verspricht.</p>
+            <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Gewinnhebel Check für Ihr Unternehmen lohnt.</p>
+          </div>
+          <div class="cta-buttons">
+            <button class="cta-btn" id="ctaBookingBtn">PDF erstellen & Termin buchen</button>
+          </div>
+          <div class="small-note" id="ctaNote">
+            Zuerst öffnet sich der Druckdialog für PDF, danach das Buchungsfenster. Falls Pop-ups blockiert sind, bitte im Browser freigeben.
           </div>
         </div>
+      </div>
 
-        <h2 class="section-title">Tachometer Ihrer 5 Gewinnhebel</h2>
-        <p class="section-sub">
-          Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.
-        </p>
-        <div class="leak-grid">
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Pricing Leak</div>
-            <div id="gauge-pricing"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Cost Leak</div>
-            <div id="gauge-cost"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Working Capital Drag</div>
-            <div id="gauge-working"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Process Inefficiency</div>
-            <div id="gauge-process"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Strategic Positioning Gap</div>
-            <div id="gauge-positioning"></div>
-          </div>
-        </div>
+      <div class="close-row">
+        <button type="button" class="close-btn" id="closeWindowBtn">Schließen</button>
+      </div>
+    `;
 
-        <h2 class="section-title">Was die Bereiche bedeuten</h2>
-        <p class="section-sub">
-          Jeder Bereich steht für einen anderen Hebel, über den zusätzlicher Gewinn, mehr Liquidität oder spürbare Entlastung sichtbar werden kann.
-        </p>
-        <div class="meaning-grid">
-          ${meaningCards.map(card => `
-            <div class="meaning-card">
-              <h3>${card.title}</h3>
-              <p>${card.text}</p>
-            </div>
-          `).join('')}
-        </div>
+    renderF1Gauge('gauge-pricing', leaksNorm.pricing);
+    renderF1Gauge('gauge-cost', leaksNorm.cost);
+    renderF1Gauge('gauge-working', leaksNorm.working);
+    renderF1Gauge('gauge-process', leaksNorm.process);
+    renderF1Gauge('gauge-positioning', leaksNorm.positioning);
 
-        <h2 class="section-title">Vorläufiges Gewinnhebel Ranking</h2>
-        <div class="result" id="resultBox">
-          <h3>${company}</h3>
-          ${
-            leakRanking.length
-              ? `
-                <p><strong>Top Leaks</strong><br>
-                Das größte sichtbare Potenzial liegt aktuell im Bereich <strong>${topLeakShort}</strong>.
-                Zusätzlich zeigen sich weitere Ansatzpunkte für Gewinn- und Liquiditätspotenzial:</p>
-                <ul>
-                  ${leakRanking.map(entry => `
-                    <li>
-                      ${entry.label}
-                      – Ausprägung: ${entry.score} (${qualitativeLabel(entry.score)})
-                    </li>
-                  `).join('')}
-                </ul>
-              `
-              : `<p><strong>Top Leaks</strong><br>
-                 Ihr Gewinn Check zeigt mehrere mögliche Potenzialbereiche, ohne einen klar dominanten Bereich.</p>`
-          }
-          ${
-            benchText
-              ? `<p><strong>Ihre Benchmark-Einschätzung</strong><br>${benchText}</p>`
-              : ''
-          }
-        </div>
-
-        <div class="cta" id="ctaBox">
-          <div class="cta-inner">
-            <div class="cta-header">
-              <div class="cta-title">Nächster sinnvoller Schritt</div>
-            </div>
-            <div class="cta-body" id="ctaBody">
-              <p>Ihr Quick Check zeigt, wo in Ihrem Unternehmen wahrscheinlich zusätzliches Gewinn-, Liquiditäts- oder Entlastungspotenzial liegt.</p>
-              <p>Die vollständige Unternehmer Analyse geht einen Schritt weiter: Sie macht sichtbar, wie groß dieses Potenzial sein kann, welche Ursachen dahinterliegen und welcher erste Hebel wirtschaftlich am meisten Wirkung verspricht.</p>
-              <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Gewinnhebel Check für Ihr Unternehmen lohnt.</p>
-            </div>
-            <div class="cta-buttons">
-              <button class="cta-btn" id="ctaBookingBtn">PDF erstellen & Termin buchen</button>
-            </div>
-            <div class="small-note" id="ctaNote">
-              Zuerst öffnet sich der Druckdialog für PDF, danach das Buchungsfenster. Falls Pop-ups blockiert sind, bitte im Browser freigeben.
-            </div>
-          </div>
-        </div>
-
-        <div class="close-row">
-          <button type="button" class="close-btn" id="closeWindowBtn">Schließen</button>
-        </div>
-      `;
-
-      renderF1Gauge('gauge-pricing', leaksNorm.pricing);
-      renderF1Gauge('gauge-cost', leaksNorm.cost);
-      renderF1Gauge('gauge-working', leaksNorm.working);
-      renderF1Gauge('gauge-process', leaksNorm.process);
-      renderF1Gauge('gauge-positioning', leaksNorm.positioning);
-
-      const bookingBtn = document.getElementById('ctaBookingBtn');
-      if (bookingBtn) {
-        bookingBtn.addEventListener('click', function () {
-          requestBookingWithPdf(payload);
-        });
-      }
-
-      const closeWindowBtn = document.getElementById('closeWindowBtn');
-      if (closeWindowBtn) {
-        closeWindowBtn.addEventListener('click', function () {
-          requestClose();
-        });
-      }
+    const bookingBtn = document.getElementById('ctaBookingBtn');
+    if (bookingBtn) {
+      bookingBtn.addEventListener('click', function () {
+        requestBookingWithPdf(payload);
+      });
     }
 
-    init();
+    const closeWindowBtn = document.getElementById('closeWindowBtn');
+    if (closeWindowBtn) {
+      closeWindowBtn.addEventListener('click', function () {
+        requestClose();
+      });
+    }
+  }
 
-    document.addEventListener('keydown', function (e) {
-      const isAltP = e.altKey && (e.key === 'p' || e.key === 'P');
-      if (!isAltP) return;
+  init();
 
-      e.preventDefault();
-      setTimeout(function () {
-        window.print();
-      }, 150);
-    });
-  </script>
-</body>
+  // Geheime Funktion: Alt+P druckt den vollständigen Gewinn-Check (für PDF)
+  document.addEventListener('keydown', function (e) {
+    const isAltP = e.altKey && (e.key === 'p' || e.key === 'P');
+    if (!isAltP) return;
+
+    e.preventDefault();
+    setTimeout(function () {
+      window.print();
+    }, 150);
+  });
+</script></body>
 </html>
