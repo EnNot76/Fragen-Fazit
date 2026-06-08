@@ -189,9 +189,22 @@
     transform:translateY(-1px);
   }
 
-  .invalid{
+  .invalid,
+  [aria-invalid="true"]{
     border-color:var(--bad)!important;
     box-shadow:0 0 0 3px rgba(184,87,87,.25)!important;
+  }
+
+  .inline-error{
+    display:none;
+    margin-top:6px;
+    font-size:12px;
+    line-height:1.45;
+    color:#a02f2f;
+  }
+
+  .inline-error.show{
+    display:block;
   }
 
   .q{
@@ -373,7 +386,6 @@
     }
   }
 
-  /* Toast */
   .toast-container{
     position:fixed;
     top:20px;
@@ -409,7 +421,6 @@
   .toast.error{background:var(--bad);}
   .toast.info{background:var(--accent-secondary);}
 
-  /* Overlay con FAZIT embeddata */
   .overlay{
     position:fixed;
     inset:0;
@@ -532,7 +543,10 @@
           autocomplete="tel"
           placeholder="+49 69 123456"
           required
+          aria-describedby="telefonnummerError"
+          aria-errormessage="telefonnummerError"
         />
+        <div id="telefonnummerError" class="inline-error" aria-live="polite"></div>
       </div>
     </div>
 
@@ -545,7 +559,10 @@
           type="email"
           required
           autocomplete="email"
+          aria-describedby="emailError"
+          aria-errormessage="emailError"
         />
+        <div id="emailError" class="inline-error" aria-live="polite"></div>
       </div>
       <div class="field">
         <label for="industry">Branche *</label>
@@ -610,7 +627,6 @@
     <h2 class="section-title">Priorität & Bereitschaft</h2>
     <div id="readiness"></div>
 
-    <!-- NOTIZ spostato in basso come ultima domanda -->
     <div class="row">
       <div class="field" style="grid-column:1 / -1;">
         <label for="notes">Notizen / Kontext</label>
@@ -628,10 +644,8 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
-<!-- Overlay FAZIT -->
 <div id="fazitOverlay" class="overlay hidden">
   <div class="overlay-inner">
     <div class="overlay-header">
@@ -652,9 +666,9 @@
     { id:"q1", label:"Wann haben Sie zuletzt Ihre Preise bewusst angepasst?", type:"single",
       opts:["Innerhalb der letzten 3 Monate","Innerhalb der letzten 6 Monate","Innerhalb der letzten 12 Monate","Vor mehr als einem Jahr","Vor mehr als zwei Jahren","Noch nie bewusst angepasst"],
       desc:"" },
-   { id:"q2", label:"Wie sicher fühlen Sie sich bei Ihrer Preisgestaltung?", type:"scale",
-  opts:["1 = UNSICHER","2 = EHER UNSICHER","3 = KLAR UND STRATEGISCH","4 = SEHR KLAR UND STRATEGISCH"],
-  desc:"" },
+    { id:"q2", label:"Wie sicher fühlen Sie sich bei Ihrer Preisgestaltung?", type:"scale",
+      opts:["1 = UNSICHER","2 = EHER UNSICHER","3 = KLAR UND STRATEGISCH","4 = SEHR KLAR UND STRATEGISCH"],
+      desc:"" },
     { id:"q3", label:"Wie viele Kundengespräche führen typischerweise zu einem Auftrag?", type:"single",
       opts:["1 von 2","1 von 5","1 von 10","1 von 20","Weniger als 1 von 20","Schwer einzuschätzen"],
       desc:"" },
@@ -698,6 +712,11 @@
   const fazitOverlay = document.getElementById("fazitOverlay");
   const fazitFrame = document.getElementById("fazitFrame");
   const closeFazitBtn = document.getElementById("closeFazitBtn");
+
+  const emailEl = document.getElementById("email");
+  const telEl = document.getElementById("telefonnummer");
+  const emailErrorEl = document.getElementById("emailError");
+  const telErrorEl = document.getElementById("telefonnummerError");
 
   function renderQ(q){
     if(q.type === "scale"){
@@ -767,9 +786,59 @@
     errorBox.style.display="block";
     errorBox.innerHTML=msg;
   }
+
   function clearError(){
     errorBox.style.display="none";
     errorBox.innerHTML="";
+  }
+
+  function setInlineError(inputEl, errorEl, message){
+    if(message){
+      inputEl.classList.add("invalid");
+      inputEl.setAttribute("aria-invalid","true");
+      errorEl.textContent = message;
+      errorEl.classList.add("show");
+    } else {
+      inputEl.classList.remove("invalid");
+      inputEl.removeAttribute("aria-invalid");
+      errorEl.textContent = "";
+      errorEl.classList.remove("show");
+    }
+  }
+
+  function isPlausiblePhone(value){
+    const cleaned = value.trim();
+    const basic = /^[0-9+()\/\-\s]{6,20}$/.test(cleaned);
+    const digits = cleaned.replace(/\D/g, "");
+    return basic && digits.length >= 6;
+  }
+
+  function validateEmailField(showMessage = true){
+    let message = "";
+    const value = emailEl.value.trim();
+
+    if(!value){
+      message = "Bitte geben Sie eine E-Mail-Adresse ein.";
+    } else if(!emailEl.checkValidity()){
+      message = "Bitte geben Sie eine gültige E-Mail-Adresse ein.";
+    }
+
+    if(showMessage) setInlineError(emailEl, emailErrorEl, message);
+    return !message;
+  }
+
+  function validatePhoneField(showMessage = true){
+    let message = "";
+    const value = telEl.value.trim();
+
+    if(!value){
+      message = "Bitte geben Sie eine Telefonnummer ein.";
+    } else if(!isPlausiblePhone(value)){
+      message = "Bitte geben Sie eine plausible Telefonnummer ein, z. B. +49 69 123456.";
+    }
+
+    if(showMessage) setInlineError(telEl, telErrorEl, message);
+    return !message;
   }
 
   function updateProgress(){
@@ -781,6 +850,7 @@
         if(document.querySelectorAll(`input[name="${name}"]:checked`).length>0) answered++;
       }else if(document.querySelector(`input[name="${name}"]:checked`)) answered++;
     });
+
     const profileFields=["companyName","foundingYear","kontaktperson","telefonnummer","email","industry","turnover","profit"];
     profileFields.forEach(id=>{
       const el=document.getElementById(id);
@@ -789,24 +859,21 @@
         else if(el.value==="Sonstiges" && document.getElementById("otherIndustry").value.trim()) answered++;
       }else if(el.value.trim()) answered++;
     });
+
     const total=requiredQs.length+profileFields.length;
     const pct=Math.round((answered/total)*100);
     progressFill.style.width=pct+"%";
   }
 
-  function isPlausiblePhone(value){
-    const cleaned = value.trim();
-    const basic = /^[0-9+()\/\-\s]{6,20}$/.test(cleaned);
-    const digits = cleaned.replace(/\D/g, "");
-    return basic && digits.length >= 6;
-  }
-
   function validateForm(){
     clearError();
     document.querySelectorAll(".invalid").forEach(el=>el.classList.remove("invalid"));
+    document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.removeAttribute("aria-invalid"));
 
-    const now = new Date().getFullYear();
-    const emailEl = document.getElementById("email");
+    validateEmailField(true);
+    validatePhoneField(true);
+
+    const now=new Date().getFullYear();
     const missingFields = [];
 
     const rules=[
@@ -824,7 +891,10 @@
     rules.forEach(([id,fn,label])=>{
       const el=document.getElementById(id);
       if(!fn(el.value)){
-        el.classList.add("invalid");
+        if(id !== "telefonnummer" && id !== "email"){
+          el.classList.add("invalid");
+          el.setAttribute("aria-invalid","true");
+        }
         valid=false;
         missingFields.push(label);
       }
@@ -834,6 +904,7 @@
       const otherField=document.getElementById("otherIndustry");
       if(!otherField.value.trim()){
         otherField.classList.add("invalid");
+        otherField.setAttribute("aria-invalid","true");
         valid=false;
         missingFields.push("Branche (Sonstiges - bitte genauer angeben)");
       }
@@ -938,11 +1009,9 @@
     })();
 
     const topLeakText = top ? leakName(top.key) : "–";
-    const benchText =
-      bench.text + ": Das Unternehmen scheint an mehreren Stellen unter Druck zu stehen.";
+    const benchText = bench.text + ": Das Unternehmen scheint an mehreren Stellen unter Druck zu stehen.";
 
-    const company =
-      document.getElementById("companyName").value.trim() || "Ihr Unternehmen";
+    const company = document.getElementById("companyName").value.trim() || "Ihr Unternehmen";
 
     let industryValue = document.getElementById("industry").value;
     if(industryValue === "Sonstiges"){
@@ -951,20 +1020,20 @@
 
     return {
       _id: Math.random().toString(36).slice(2),
-      timestamp:   new Date().toISOString(),
+      timestamp: new Date().toISOString(),
       companyName: company,
       foundingYear: Number(document.getElementById("foundingYear").value || 0),
       kontaktperson: document.getElementById("kontaktperson").value.trim(),
       telefonnummer: document.getElementById("telefonnummer").value.trim(),
-      email:        document.getElementById("email").value.trim(),
-      industry:     industryValue,
-      turnover:     document.getElementById("turnover").value,
-      profit:       document.getElementById("profit").value,
-      notes:        document.getElementById("notes").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      industry: industryValue,
+      turnover: document.getElementById("turnover").value,
+      profit: document.getElementById("profit").value,
+      notes: document.getElementById("notes").value.trim(),
       answers,
       leaks,
       benchmark: benchText,
-      topLeak:   topLeakText,
+      topLeak: topLeakText,
       readiness: readinessSummary(answers)
     };
   }
@@ -974,9 +1043,7 @@
     const putUrl = `${CONFIG.jsonbinUrl}/${CONFIG.jsonbinBinId}`;
 
     const res = await fetch(url,{
-      headers:{
-        "X-Master-Key": CONFIG.jsonbinApiKey
-      }
+      headers:{ "X-Master-Key": CONFIG.jsonbinApiKey }
     });
 
     if(!res.ok){
@@ -1040,7 +1107,6 @@
     });
   }
 
-  // Overlay mit FAZIT
   function openFazitOverlay(payload){
     const encoded = encodeURIComponent(JSON.stringify(payload));
     fazitFrame.src = "fazit.html?data=" + encoded;
@@ -1058,6 +1124,11 @@
   fazitOverlay.addEventListener("click", (e)=>{
     if(e.target === fazitOverlay) closeFazitOverlay();
   });
+
+  emailEl.addEventListener("input", () => validateEmailField(true));
+  emailEl.addEventListener("blur", () => validateEmailField(true));
+  telEl.addEventListener("input", () => validatePhoneField(true));
+  telEl.addEventListener("blur", () => validatePhoneField(true));
 
   document.addEventListener("change",e=>{
     if(e.target.matches('input[type="radio"],input[type="checkbox"],select,input,textarea')){
@@ -1100,7 +1171,12 @@
       if(el.type==="radio"||el.type==="checkbox") el.checked=false;
       else el.value="";
       el.classList.remove("invalid");
+      el.removeAttribute("aria-invalid");
     });
+
+    setInlineError(emailEl, emailErrorEl, "");
+    setInlineError(telEl, telErrorEl, "");
+
     document.getElementById("otherIndustry").style.display="none";
     clearError();
     updatePills();
