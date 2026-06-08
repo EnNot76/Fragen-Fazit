@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gewinn Check Ergebnis</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --gold:#d4af37;
@@ -26,8 +28,12 @@
 
     *{box-sizing:border-box}
 
-    body{
+    html, body{
       margin:0;
+      padding:0;
+    }
+
+    body{
       font-family:var(--bodyFont);
       background:linear-gradient(180deg,#000 0%,#050505 100%);
       color:var(--text);
@@ -52,12 +58,11 @@
       padding:28px 24px;
       margin-bottom:18px;
       backdrop-filter: blur(16px);
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
-    .hero-inner,.cta-inner{
-      position:relative;
-      z-index:1;
-    }
+    .hero-inner{position:relative;z-index:1}
 
     h1{
       margin:0 0 8px;
@@ -91,12 +96,16 @@
       letter-spacing:.08em;
       text-transform:uppercase;
       color:var(--gold-2);
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .section-sub{
       margin:0 0 12px;
       font-size:13px;
       color:var(--muted);
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .kpi{
@@ -104,6 +113,8 @@
       grid-template-columns:1fr 1fr;
       gap:12px;
       margin-bottom:12px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .box{
@@ -114,6 +125,8 @@
       backdrop-filter: blur(10px);
       border:1px solid var(--line-2);
       transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .box .muted{
@@ -139,6 +152,8 @@
       border:1px solid var(--line-2);
       margin-bottom:14px;
       min-height:120px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .result h3{
@@ -166,11 +181,10 @@
     .result ul{
       margin:10px 0 0 18px;
       padding:0;
-      color:var(--text);
     }
 
     .result li{
-      margin:6px 0;
+      margin:0 0 8px;
       line-height:1.6;
     }
 
@@ -181,11 +195,18 @@
       margin-top:8px;
     }
 
+    .leak-grid{
+      break-inside: auto;
+      page-break-inside: auto;
+    }
+
     .f1-gauge-wrap,.meaning-card{
       border-radius:22px;
       padding:14px 14px 10px;
       background:linear-gradient(180deg,#121212,#090909);
       border:1px solid var(--line-2);
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .f1-gauge-label{
@@ -250,9 +271,7 @@
       margin-bottom:10px;
     }
 
-    .cta-body p{
-      margin:0 0 10px;
-    }
+    .cta-body p{margin:0 0 10px}
 
     .cta-buttons{
       display:flex;
@@ -274,18 +293,12 @@
       border:none;
       cursor:pointer;
       box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18);
-      transition:transform .2s ease, opacity .2s ease, box-shadow .2s ease;
-    }
-
-    .cta-btn:hover{
-      transform:translateY(-1px);
-      box-shadow:0 18px 32px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.18);
+      transition:opacity .2s ease;
     }
 
     .cta-btn:disabled{
       opacity:.7;
       cursor:wait;
-      transform:none;
     }
 
     .small-note{
@@ -324,20 +337,125 @@
       cursor:pointer;
     }
 
-    .pdf-mode .cta,
-    .pdf-mode .close-row{
+    .pdf-only{
+      display:none;
+    }
+
+    .html2pdf__page-break{
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .pdf-export .cta,
+    .pdf-export .close-row{
       display:none !important;
     }
 
-    .pdf-mode body{
+    .pdf-export body{
       padding:0;
-      background:#000;
+      background:#ffffff;
+      color:#111111;
+    }
+
+    .pdf-export .wrap{
+      max-width:none;
+      margin:0;
+      padding:0;
+    }
+
+    .pdf-export .hero,
+    .pdf-export .panel,
+    .pdf-export .f1-gauge-wrap,
+    .pdf-export .box,
+    .pdf-export .result,
+    .pdf-export .meaning-card{
+      box-shadow:none !important;
+      backdrop-filter:none !important;
+    }
+
+    .pdf-export .hero,
+    .pdf-export .panel{
+      background:#ffffff !important;
+      color:#111111 !important;
+      border:1px solid #d8c27a !important;
+    }
+
+    .pdf-export .f1-gauge-wrap,
+    .pdf-export .box,
+    .pdf-export .result,
+    .pdf-export .meaning-card{
+      background:#fffdf8 !important;
+      color:#111111 !important;
+      border:1px solid #e6d7a7 !important;
+    }
+
+    .pdf-export .sub,
+    .pdf-export .section-sub,
+    .pdf-export .f1-gauge-label,
+    .pdf-export .box .muted,
+    .pdf-export .result p strong,
+    .pdf-export .meaning-card strong{
+      color:#6b6148 !important;
+    }
+
+    .pdf-export .section-title,
+    .pdf-export h1,
+    .pdf-export .meaning-card h3,
+    .pdf-export .result h3,
+    .pdf-export .box .big{
+      color:#8f6f1d !important;
+    }
+
+    .pdf-export .result p,
+    .pdf-export .meaning-card p,
+    .pdf-export .result li{
+      color:#1d1a14 !important;
+    }
+
+    .pdf-export .f1-gauge text{
+      fill:#1d1a14 !important;
+    }
+
+    .pdf-export .pdf-only{
+      display:block;
+      margin:0 0 18px;
+      padding:0 2px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .pdf-meta{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      padding:12px 14px;
+      border:1px solid #e6d7a7;
+      border-radius:16px;
+      background:#fffaf0;
+      color:#6b6148;
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .pdf-meta strong{
+      color:#8f6f1d;
+      font-family:var(--titleFont);
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      font-size:11px;
+    }
+
+    @page{
+      size:A4;
+      margin:14mm 12mm 15mm 12mm;
     }
 
     @media print{
       body{
         padding:0;
-        background:#000;
+        background:#ffffff;
+        color:#111111;
       }
 
       .cta,
@@ -345,21 +463,69 @@
         display:none !important;
       }
 
-      .hero,.panel,.f1-gauge-wrap,.box,.result,.meaning-card{
+      .wrap{
+        max-width:none;
+        margin:0;
+      }
+
+      .hero,
+      .panel,
+      .f1-gauge-wrap,
+      .box,
+      .result,
+      .meaning-card{
         box-shadow:none !important;
+        backdrop-filter:none !important;
+      }
+
+      .hero,
+      .panel{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border:1px solid #d8c27a !important;
+      }
+
+      .f1-gauge-wrap,
+      .box,
+      .result,
+      .meaning-card{
+        background:#fffdf8 !important;
+        color:#111111 !important;
+        border:1px solid #e6d7a7 !important;
+      }
+
+      .sub,
+      .section-sub,
+      .f1-gauge-label,
+      .box .muted,
+      .result p strong,
+      .meaning-card strong{
+        color:#6b6148 !important;
+      }
+
+      .section-title,
+      h1,
+      .meaning-card h3,
+      .result h3,
+      .box .big{
+        color:#8f6f1d !important;
+      }
+
+      .result p,
+      .meaning-card p,
+      .result li{
+        color:#1d1a14 !important;
+      }
+
+      .pdf-only{
+        display:block !important;
       }
     }
 
     @media (min-width:720px){
-      .leak-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-      .leak-grid div:last-child{
-        grid-column:1/-1;
-      }
-      .meaning-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
+      .leak-grid{grid-template-columns:repeat(2,1fr)}
+      .leak-grid div:last-child{grid-column:1/-1}
+      .meaning-grid{grid-template-columns:repeat(2,1fr)}
     }
 
     @media (max-width:520px){
@@ -380,6 +546,8 @@
         </p>
       </div>
     </div>
+
+    <div class="pdf-only" id="pdfMetaBlock"></div>
 
     <div class="panel" id="contentPanel"></div>
   </div>
@@ -521,11 +689,34 @@
       return 'stark ausgeprägt';
     }
 
+    function formatDateForPdf() {
+      const now = new Date();
+      return new Intl.DateTimeFormat('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(now);
+    }
+
+    function renderPdfMeta(company, benchLabel, topLeakLabels) {
+      const meta = document.getElementById('pdfMetaBlock');
+      if (!meta) return;
+      meta.innerHTML = `
+        <div class="pdf-meta">
+          <div><strong>Unternehmen</strong><br>${company}</div>
+          <div><strong>Datum</strong><br>${formatDateForPdf()}</div>
+          <div><strong>Benchmark-Level</strong><br>${benchLabel || 'Benchmark'}</div>
+          <div><strong>Top Leak</strong><br>${topLeakLabels.length ? topLeakLabels.join(', ') : '–'}</div>
+        </div>
+      `;
+    }
+
     async function saveFazitPdf(companyName) {
       const source = document.getElementById('fazitContent');
       if (!source || typeof html2pdf === 'undefined') return;
 
-      document.documentElement.classList.add('pdf-mode');
+      document.documentElement.classList.add('pdf-export');
+      document.body.classList.add('pdf-export');
 
       const safeCompany = (companyName || 'Gewinn-Check')
         .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
@@ -533,26 +724,32 @@
         .replace(/\s+/g, '-');
 
       const opt = {
-        margin: [10, 10, 12, 10],
+        margin: [8, 8, 10, 8],
         filename: `Gewinn-Check-${safeCompany}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
           scale: 2,
           useCORS: true,
-          backgroundColor: '#000000'
+          backgroundColor: '#ffffff',
+          scrollX: 0,
+          scrollY: 0
         },
         jsPDF: {
           unit: 'mm',
           format: 'a4',
           orientation: 'portrait'
         },
-        pagebreak: { mode: ['css', 'legacy'] }
+        pagebreak: {
+          mode: ['css', 'legacy'],
+          avoid: ['.hero', '.kpi', '.box', '.f1-gauge-wrap', '.meaning-card', '.result', '.pdf-meta']
+        }
       };
 
       try {
         await html2pdf().set(opt).from(source).save();
       } finally {
-        document.documentElement.classList.remove('pdf-mode');
+        document.documentElement.classList.remove('pdf-export');
+        document.body.classList.remove('pdf-export');
       }
     }
 
@@ -592,6 +789,8 @@
       document.getElementById('heroSub').textContent =
         `Ergebnis für ${company}: Ihr Gewinn Check zeigt, wo Gewinnpotenzial noch nicht vollständig genutzt wird.`;
 
+      renderPdfMeta(company, benchLabel, topLeakLabels);
+
       panel.innerHTML = `
         <h2 class="section-title">Kurzüberblick</h2>
         <p class="section-sub">
@@ -612,7 +811,9 @@
           </div>
         </div>
 
-        <h2 class="section-title">Tachometer Ihrer 5 Profit Leaks</h2>
+        <div class="html2pdf__page-break"></div>
+
+        <h2 class="section-title">Tachometer Ihrer 5 Gewinnhebel</h2>
         <p class="section-sub">
           Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.
         </p>
@@ -652,7 +853,7 @@
           `).join('')}
         </div>
 
-        <h2 class="section-title">Vorläufiges Profit Leak Ranking</h2>
+        <h2 class="section-title">Vorläufiges Gewinnhebel Ranking</h2>
         <div class="result" id="resultBox">
           <h3>${company}</h3>
           ${
@@ -688,7 +889,7 @@
             <div class="cta-body" id="ctaBody">
               <p>Ihr Quick Check zeigt, wo in Ihrem Unternehmen wahrscheinlich zusätzliches Gewinn-, Liquiditäts- oder Entlastungspotenzial liegt.</p>
               <p>Die vollständige Unternehmer Analyse geht einen Schritt weiter: Sie macht sichtbar, wie groß dieses Potenzial sein kann, welche Ursachen dahinterliegen und welcher erste Hebel wirtschaftlich am meisten Wirkung verspricht.</p>
-              <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Profit Leak Check für Ihr Unternehmen lohnt.</p>
+              <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Gewinnhebel Check für Ihr Unternehmen lohnt.</p>
             </div>
             <div class="cta-buttons">
               <button class="cta-btn" id="ctaBookingBtn">Ergebnis gemeinsam auswerten</button>
