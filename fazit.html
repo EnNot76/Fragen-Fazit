@@ -230,6 +230,12 @@
       cursor:pointer;
       box-shadow:0 14px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18);
     }
+    .cta-btn.secondary{
+      background:transparent;
+      color:var(--gold-2);
+      border:1px solid rgba(212,175,55,.5);
+      box-shadow:none;
+    }
     .small-note{
       margin-top:8px;
       font-size:11px;
@@ -800,10 +806,11 @@
               <p>Wenn Sie möchten, gehen wir Ihr Ergebnis gemeinsam in einem kurzen Auswertungsgespräch durch. Danach wissen Sie klarer, ob sich ein vollständiger Gewinnhebel Check für Ihr Unternehmen lohnt.</p>
             </div>
             <div class="cta-buttons">
-              <button class="cta-btn" id="ctaBookingBtn">PDF erstellen & Termin buchen</button>
+              <button class="cta-btn" id="ctaBookingBtn">Termin buchen</button>
+              <button class="cta-btn secondary" id="ctaPdfBtn">Ergebniss gratis herunterladen</button>
             </div>
             <div class="small-note" id="ctaNote">
-              Zuerst öffnet sich die Buchungsseite in einem neuen Tab. In einem weiteren Fenster können Sie das Ergebnis als PDF speichern oder drucken.
+              „Termin buchen“ öffnet die Buchungsseite in einem neuen Tab. „Ergebniss gratis herunterladen“ öffnet Ihr Ergebnis in einem separaten Fenster zum Drucken oder als PDF speichern.
             </div>
           </div>
         </div>
@@ -823,10 +830,16 @@
       if (bookingBtn) {
         bookingBtn.addEventListener('click', function () {
           const bookingWin = window.open(BOOKING_URL, "_blank", "noopener,noreferrer");
-          openPdfWindowFromPayload(payload);
           if (!bookingWin) {
             alert("Bitte Pop-ups für die Buchungsseite erlauben. Der Buchungslink wurde evtl. blockiert.");
           }
+        });
+      }
+
+      const pdfBtn = document.getElementById('ctaPdfBtn');
+      if (pdfBtn) {
+        pdfBtn.addEventListener('click', function () {
+          openPdfWindowFromPayload(payload);
         });
       }
 
@@ -840,6 +853,7 @@
 
     init();
 
+    // Alt+P: nur Druck des Overlays selbst
     document.addEventListener('keydown', function (e) {
       const isAltP = e.altKey && (e.key === 'p' || e.key === 'P');
       if (!isAltP) return;
