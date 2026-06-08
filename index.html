@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Profit Leak Quick Check</title>
+
+  <style>
+    :root{
+      --gold:#b7a36a;
+      --black:#000000;
+      --grey:#e6e4df;
+      --white:#ffffff;
+      --bg:#f6f3ec;
+      --panel:#ffffff;
+      --line:#d7d2c5;
+      --text:#111111;
+      --muted:#7a746a;
+      --accent-primary:var(--gold);
+      --accent-secondary:#1f1f1f;
+      --good:#2f8f5b;
+      --warn:#c08a2c;
+      --bad:#b85757;
+      --shadow-soft:0 16px 40px rgba(0,0,0,.10);
+      --radius-lg:24px;
+      --titleFont:"Century Gothic","Trebuchet MS",system-ui,sans-serif;
+      --bodyFont:Calibri,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+    }
+
+    body{
+      font-family:var(--bodyFont);
+      background:linear-gradient(180deg,#f7f4ee 0%, #f0ece4 100%);
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+    }
+
+    .page{
+      width:100%;
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px 16px 48px;
+    }
+
+    .hero{
+      background:linear-gradient(180deg,#fffdf8 0%, #f8f3e9 100%);
+      border:1px solid var(--line);
+      border-radius:32px;
+      padding:28px 22px;
+      box-shadow:var(--shadow-soft);
+      margin-bottom:18px;
+    }
+
+    .hero h1{
+      margin:0 0 8px;
+      font-family:var(--titleFont);
+      font-size:clamp(30px,4vw,46px);
+      letter-spacing:.04em;
+      color:#1b1b1b;
+      text-transform:uppercase;
+    }
+
+    .hero p{
+      margin:0;
+      max-width:860px;
+      font-size:16px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:22px 18px;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .field.full{
+      grid-column:1 / -1;
+    }
+
+    label{
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      color:#645c50;
+      font-family:var(--titleFont);
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:1px solid #d8d1c2;
+      border-radius:16px;
+      padding:14px 14px;
+      background:#fffefb;
+      color:#111;
+      font-size:16px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    textarea{
+      min-height:130px;
+      resize:vertical;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:#b7a36a;
+      box-shadow:0 0 0 4px rgba(183,163,106,.15);
+      background:#fffdfa;
+    }
+
+    .actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      border-radius:999px;
+      padding:13px 18px;
+      cursor:pointer;
+      font-family:var(--titleFont);
+      font-size:13px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      transition:transform .18s ease, opacity .18s ease, box-shadow .18s ease;
+    }
+
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:disabled{ opacity:.7; cursor:wait; transform:none; }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#8f6f1d,#d4af37,#f3e2a0);
+      color:#111;
+      box-shadow:0 12px 28px rgba(0,0,0,.16);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:#222;
+      border:1px solid #d7d2c5;
+    }
+
+    .note{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .error{
+      display:none;
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(184,87,87,.28);
+      background:rgba(184,87,87,.10);
+      color:#8e2f2f;
+      font-size:14px;
+    }
+
+    .success{
+      display:none;
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(47,143,91,.28);
+      background:rgba(47,143,91,.10);
+      color:#236542;
+      font-size:14px;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(10,10,10,.68);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+
+    .overlay.hidden{
+      display:none;
+    }
+
+    .overlay-card{
+      width:min(1100px, 100%);
+      height:min(90vh, 920px);
+      background:#111;
+      border-radius:28px;
+      overflow:hidden;
+      box-shadow:0 30px 80px rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.08);
+      position:relative;
+    }
+
+    .overlay-topbar{
+      position:absolute;
+      top:10px;
+      right:10px;
+      z-index:10;
+      display:flex;
+      gap:8px;
+    }
+
+    .overlay-btn{
+      border:none;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+      font-family:var(--titleFont);
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      backdrop-filter:blur(8px);
+    }
+
+    .overlay iframe{
+      width:100%;
+      height:100%;
+      border:none;
+      display:block;
+      background:#000;
+    }
+
+    .print-window{
+      font-family:Arial,sans-serif;
+      padding:24px;
+      line-height:1.6;
+      color:#111;
+    }
+
+    @media (max-width: 780px){
+      .grid{ grid-template-columns:1fr; }
+      .hero{ padding:22px 18px; }
+      .panel{ padding:18px 14px; }
+      .page{ padding:16px 12px 36px; }
+      .overlay-card{ height:min(92vh, 980px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Profit Leak Quick Check</h1>
+      <p>
+        Bitte beantworten Sie die folgenden Fragen. Anschließend erhalten Sie eine erste Einordnung Ihrer sichtbaren Gewinn-, Liquiditäts- und Entlastungspotenziale.
+      </p>
+    </section>
+
+    <section class="panel">
+      <form id="quickCheckForm" novalidate>
+        <div class="grid">
+          <div class="field full">
+            <label for="companyName">Unternehmen</label>
+            <input id="companyName" name="companyName" type="text" required placeholder="Name Ihres Unternehmens">
+          </div>
+
+          <div class="field">
+            <label for="email">E-Mail</label>
+            <input id="email" name="email" type="email" required autocomplete="email" placeholder="name@unternehmen.de">
+          </div>
+
+          <div class="field">
+            <label for="telefon">Telefon</label>
+            <input
+              id="telefon"
+              name="telefon"
+              type="tel"
+              required
+              autocomplete="tel"
+              inputmode="tel"
+              pattern="^[0-9+()\/\-\s]{6,20}$"
+              placeholder="+49 171 1234567"
+              title="Bitte eine plausible Telefonnummer eingeben.">
+          </div>
+
+          <div class="field">
+            <label for="pricing">Pricing Leak</label>
+            <select id="pricing" name="pricing" required>
+              <option value="">Bitte wählen</option>
+              <option value="1">1 – gering</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5 – hoch</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="cost">Cost Leak</label>
+            <select id="cost" name="cost" required>
+              <option value="">Bitte wählen</option>
+              <option value="1">1 – gering</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5 – hoch</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="workingCapital">Working Capital Drag</label>
+            <select id="workingCapital" name="workingCapital" required>
+              <option value="">Bitte wählen</option>
+              <option value="1">1 – gering</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5 – hoch</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="process">Process Inefficiency</label>
+            <select id="process" name="process" required>
+              <option value="">Bitte wählen</option>
+              <option value="1">1 – gering</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5 – hoch</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="positioning">Strategic Positioning Gap</label>
+            <select id="positioning" name="positioning" required>
+              <option value="">Bitte wählen</option>
+              <option value="1">1 – gering</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5 – hoch</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="benchmark">Benchmark-Einschätzung</label>
+            <select id="benchmark" name="benchmark" required>
+              <option value="">Bitte wählen</option>
+              <option value="Das Unternehmen ist bereits gut aufgestellt, zeigt aber noch einzelne Gewinn- und Liquiditätshebel.">
+                Solide aufgestellt
+              </option>
+              <option value="Das Unternehmen zeigt mehrere Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.">
+                Sichtbares Potenzial
+              </option>
+              <option value="Das Unternehmen zeigt deutliche Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.">
+                Deutliches Potenzial
+              </option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="notiz">Notiz</label>
+            <textarea id="notiz" name="notiz" placeholder="Zusätzliche Hinweise"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="reset" class="btn btn-secondary">Zurücksetzen</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Ergebnis anzeigen</button>
+        </div>
+
+        <div class="note">
+          Nach dem Absenden wird Ihr Ergebnis in einer geschützten Ansicht geöffnet.
+        </div>
+
+        <div class="error" id="formError"></div>
+        <div class="success" id="formSuccess"></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="overlay hidden" id="fazitOverlay" aria-hidden="true">
+    <div class="overlay-card">
+      <div class="overlay-topbar">
+        <button type="button" class="overlay-btn" id="overlayCloseBtn">Schließen</button>
+      </div>
+      <iframe
+        id="fazitFrame"
+        title="Gewinn Check Ergebnis"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-modals allow-downloads">
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    const BOOKING_URL = "https://outlook.office365.com/owa/calendar/GewninnHebel@one-pointzero.com/bookings/";
+    const MESSAGE_TYPES = {
+      OPEN_BOOKING_WITH_PDF: "OPEN_BOOKING_WITH_PDF",
+      CLOSE_FAZIT: "CLOSE_FAZIT"
+    };
+
+    const form = document.getElementById('quickCheckForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formError = document.getElementById('formError');
+    const formSuccess = document.getElementById('formSuccess');
+    const fazitOverlay = document.getElementById('fazitOverlay');
+    const fazitFrame = document.getElementById('fazitFrame');
+    const overlayCloseBtn = document.getElementById('overlayCloseBtn');
+
+    let pendingBookingWindow = null;
+
+    function showError(message) {
+      formError.textContent = message || 'Bitte prüfen Sie Ihre Eingaben.';
+      formError.style.display = 'block';
+      formSuccess.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      formSuccess.textContent = message || '';
+      formSuccess.style.display = message ? 'block' : 'none';
+      formError.style.display = 'none';
+    }
+
+    function clearMessages() {
+      formError.style.display = 'none';
+      formSuccess.style.display = 'none';
+      formError.textContent = '';
+      formSuccess.textContent = '';
+    }
+
+    function openOverlayWithPayload(payload) {
+      const encoded = encodeURIComponent(JSON.stringify(payload));
+      fazitFrame.src = `fazit.html?data=${encoded}`;
+      fazitOverlay.classList.remove('hidden');
+      fazitOverlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeOverlay() {
+      fazitOverlay.classList.add('hidden');
+      fazitOverlay.setAttribute('aria-hidden', 'true');
+      fazitFrame.src = '';
+      document.body.style.overflow = '';
+    }
+
+    function getNumericValue(id) {
+      return Number(document.getElementById(id).value || 0);
+    }
+
+    function validateForm() {
+      clearMessages();
+
+      const email = document.getElementById('email');
+      const telefon = document.getElementById('telefon');
+
+      email.setCustomValidity('');
+      telefon.setCustomValidity('');
+
+      if (!form.checkValidity()) {
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) {
+          firstInvalid.reportValidity();
+          firstInvalid.focus();
+        }
+        return false;
+      }
+
+      const telValue = telefon.value.trim();
+      const telOk = /^[0-9+()\/\-\s]{6,20}$/.test(telValue);
+
+      if (!telOk) {
+        telefon.setCustomValidity('Bitte eine plausible Telefonnummer eingeben.');
+        telefon.reportValidity();
+        telefon.focus();
+        return false;
+      }
+
+      return true;
+    }
+
+    function buildPayload() {
+      return {
+        companyName: document.getElementById('companyName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        telefon: document.getElementById('telefon').value.trim(),
+        notiz: document.getElementById('notiz').value.trim(),
+        benchmark: document.getElementById('benchmark').value,
+        leaks: {
+          pricing: getNumericValue('pricing'),
+          cost: getNumericValue('cost'),
+          workingCapital: getNumericValue('workingCapital'),
+          process: getNumericValue('process'),
+          positioning: getNumericValue('positioning')
+        }
+      };
+    }
+
+    function openBookingPlaceholderWindow() {
+      const win = window.open('', '_blank');
+
+      if (!win) return null;
+
+      try {
+        win.document.open();
+        win.document.write(`
+          <!DOCTYPE html>
+          <html lang="de">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Weiterleitung...</title>
+            <style>
+              body{
+                margin:0;
+                min-height:100vh;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                background:#f7f4ee;
+                color:#111;
+                font-family:Arial,sans-serif;
+                padding:24px;
+              }
+              .card{
+                max-width:520px;
+                text-align:center;
+                background:#fff;
+                border:1px solid #d7d2c5;
+                border-radius:20px;
+                padding:24px 22px;
+                box-shadow:0 12px 32px rgba(0,0,0,.08);
+              }
+              h1{
+                margin:0 0 10px;
+                font-size:22px;
+              }
+              p{
+                margin:0;
+                line-height:1.6;
+                color:#5e584f;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>Bitte einen Moment</h1>
+              <p>Der Terminkalender wird geöffnet ...</p>
+            </div>
+          </body>
+          </html>
+        `);
+        win.document.close();
+      } catch (e) {}
+
+      return win;
+    }
+
+    function redirectBookingWindow() {
+      if (pendingBookingWindow && !pendingBookingWindow.closed) {
+        try {
+          pendingBookingWindow.location.href = BOOKING_URL;
+          pendingBookingWindow.focus();
+          return;
+        } catch (e) {}
+      }
+
+      window.open(BOOKING_URL, '_blank');
+    }
+
+    async function openPdfPrintWindow(payload) {
+      const encoded = encodeURIComponent(JSON.stringify(payload));
+      const pdfUrl = `fazit.html?data=${encoded}`;
+
+      const printWin = window.open(pdfUrl, '_blank');
+
+      if (!printWin) {
+        throw new Error('Print-Fenster konnte nicht geöffnet werden.');
+      }
+
+      return true;
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        showError('Bitte prüfen Sie Ihre Eingaben.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      clearMessages();
+
+      const payload = buildPayload();
+
+      pendingBookingWindow = openBookingPlaceholderWindow();
+      openOverlayWithPayload(payload);
+      showSuccess('Ihr Ergebnis wurde geöffnet.');
+
+      setTimeout(() => {
+        submitBtn.disabled = false;
+      }, 400);
+    });
+
+    overlayCloseBtn.addEventListener('click', closeOverlay);
+
+    fazitOverlay.addEventListener('click', function (e) {
+      if (e.target === fazitOverlay) {
+        closeOverlay();
+      }
+    });
+
+    window.addEventListener('message', async function (event) {
+      if (event.origin !== window.location.origin) return;
+      if (!event.data || typeof event.data !== 'object') return;
+
+      if (event.data.type === MESSAGE_TYPES.CLOSE_FAZIT) {
+        closeOverlay();
+        return;
+      }
+
+      if (event.data.type === MESSAGE_TYPES.OPEN_BOOKING_WITH_PDF) {
+        try {
+          await openPdfPrintWindow(event.data.payload);
+        } catch (err) {
+          console.error('PDF-/Druckfenster konnte nicht geöffnet werden', err);
+        } finally {
+          redirectBookingWindow();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
