@@ -844,9 +844,15 @@
       const ctaBody = document.getElementById('ctaBody');
       const ctaButtons = document.getElementById('ctaButtons');
       const ctaNote = document.getElementById('ctaNote');
+      const ctaBox = document.getElementById('ctaBox');
 
       if (bookingBtn && bookingPanel && bookingFrame) {
         bookingBtn.addEventListener('click', function () {
+          // porta la card CTA/Booking in alto nella viewport
+          if (ctaBox && ctaBox.scrollIntoView) {
+            ctaBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+
           if (ctaBody) ctaBody.style.display = 'none';
           if (ctaButtons) ctaButtons.style.display = 'none';
           if (ctaNote) ctaNote.style.display = 'none';
