@@ -306,7 +306,6 @@
   .checkpill input{width:auto;}
 
   .checkpill:hover{transform:translateY(-1px);}
-
   .checkpill.active{
     background:#1f1f1f;
     color:#fff;
@@ -343,7 +342,6 @@
     box-shadow:0 14px 28px rgba(0,0,0,.22);
   }
 
-  .secondary{background:var(--gold);color:#000;}
   .danger{background:#b85757;}
 
   .errorBox{
@@ -365,8 +363,6 @@
   .errorBox li{
     margin:4px 0;
   }
-
-  #saveBtn{display:none;}
 
   #otherIndustry{
     display:none;
@@ -671,7 +667,6 @@
 
     <div class="btns">
       <button id="revealBtn" type="button">Ergebnis anzeigen</button>
-      <button class="secondary" id="saveBtn" type="button">In JSONBin speichern</button>
       <button class="danger" id="resetBtn" type="button">Zurücksetzen</button>
     </div>
   </div>
@@ -695,7 +690,7 @@
 
 <script>
   const CONFIG = {
-    jsonbinBinId: "6a22b27bf5f4af5e29bd697e",
+    jsonbinBinId: "6a26d11ff5f4af5e29cbd43d",
     jsonbinApiKey: "$2a$10$Ptz6A3DYRVCx6xos.DtVCOj/GJTNXPZiOfRIKu/NGF7L.AniURKMm",
     jsonbinUrl: "https://api.jsonbin.io/v3/b"
   };
@@ -756,7 +751,6 @@
   const fazitOverlay = document.getElementById("fazitOverlay");
   const fazitFrame = document.getElementById("fazitFrame");
   const closeFazitBtn = document.getElementById("closeFazitBtn");
-
   const emailEl = document.getElementById("email");
   const telEl = document.getElementById("telefonnummer");
   const emailErrorEl = document.getElementById("emailError");
@@ -1416,12 +1410,7 @@
     if(!validateForm()) return;
     const payload = buildPayload();
     openFazitOverlay(payload);
-    document.getElementById("saveBtn").style.display = "inline-flex";
-  });
 
-  document.getElementById("saveBtn").addEventListener("click", async ()=>{
-    if(!validateForm()) return;
-    const payload = buildPayload();
     try{
       await loadCurrentBinAndAppend(payload);
       showToast("Ergebnis wurde in JSONBin gespeichert.", "success", 3500);
