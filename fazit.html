@@ -271,23 +271,6 @@
       font-size:13px;
       margin-top:10px;
     }
-    .close-row{
-      display:flex;
-      justify-content:flex-end;
-      margin-top:16px;
-    }
-    .close-btn{
-      background:transparent;
-      color:var(--gold-2);
-      border:1px solid rgba(212,175,55,.32);
-      padding:10px 16px;
-      border-radius:999px;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      font-family:var(--titleFont);
-      cursor:pointer;
-    }
     .booking-actions{
       display:flex;
       justify-content:flex-end;
@@ -339,9 +322,6 @@
 
     <div id="mainContent">
       <div class="panel" id="contentPanel"></div>
-      <div class="close-row">
-        <button type="button" class="close-btn" id="closeWindowBtn">Schließen</button>
-      </div>
     </div>
 
     <div class="panel" id="bookingPanel" style="display:none;">
@@ -719,24 +699,6 @@
       printWin.focus();
     }
 
-    function requestClose() {
-      if (window.parent && window.parent !== window) {
-        try {
-          const overlay = window.parent.document.getElementById('fazitOverlay');
-          const frame = window.parent.document.getElementById('fazitFrame');
-          if (overlay) overlay.classList.add('hidden');
-          if (frame) frame.src = '';
-          if (window.parent.document && window.parent.document.body) {
-            window.parent.document.body.style.overflow = '';
-          }
-        } catch (e) {
-          window.close();
-        }
-      } else {
-        window.close();
-      }
-    }
-
     function init() {
       const payload = getPayloadFromQuery();
       const panel = document.getElementById('contentPanel');
@@ -930,13 +892,6 @@
       if (pdfBtn) {
         pdfBtn.addEventListener('click', function () {
           openPdfWindowFromPayload(payload);
-        });
-      }
-
-      const closeWindowBtn = document.getElementById('closeWindowBtn');
-      if (closeWindowBtn) {
-        closeWindowBtn.addEventListener('click', function () {
-          requestClose();
         });
       }
     }
