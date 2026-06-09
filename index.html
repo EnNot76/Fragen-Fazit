@@ -1413,7 +1413,7 @@
 
     try{
       await loadCurrentBinAndAppend(payload);
-      showToast("Ergebnis wurde in JSONBin gespeichert.", "success", 3500);
+      showToast("Ergebnis wurde gespeichert.", "success", 3500);
     }catch(err){
       console.error(err);
       showToast("Fehler beim Speichern in JSONBin.", "error", 4500);
