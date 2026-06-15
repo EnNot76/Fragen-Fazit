@@ -479,6 +479,26 @@
       return 'stark ausgeprägt';
     }
 
+    function marginTextFromBucket(bucket) {
+      if (!bucket) return "";
+      if (bucket.startsWith("1 = sehr niedrige Marge")) {
+        return "Ihre Gewinnmarge liegt aktuell deutlich unter 10 % und damit klar unter dem üblichen Zielkorridor.";
+      }
+      if (bucket.startsWith("2 = unterdurchschnittliche Marge")) {
+        return "Ihre Gewinnmarge liegt aktuell im Bereich von ca. 10–16 % – unterhalb des üblichen Zielkorridors.";
+      }
+      if (bucket.startsWith("3 = im Zielkorridor")) {
+        return "Ihre Gewinnmarge liegt aktuell im Zielkorridor von ungefähr 16–22 %.";
+      }
+      if (bucket.startsWith("4 = überdurchschnittliche Marge")) {
+        return "Ihre Gewinnmarge liegt aktuell über dem üblichen Zielkorridor – ein starkes Ergebnis.";
+      }
+      if (bucket.startsWith("5 = außergewöhnlich hohe Marge")) {
+        return "Ihre Gewinnmarge liegt aktuell deutlich über 35 % – außergewöhnlich hoch im Vergleich zum Markt.";
+      }
+      return "";
+    }
+
     function escapeHtml(str) {
       return String(str ?? "")
         .replaceAll("&", "&amp;")
@@ -783,19 +803,15 @@
           </div>
         </div>
 
-<h2 class="section-title">Gewinnmarge</h2>
-<p class="section-sub">
-  Dieser Tachometer zeigt eine grobe Einordnung Ihrer Gewinnmarge. 20&nbsp;% Marge entsprechen hier 100&nbsp;% Ausschlag.
-</p>
-<div class="leak-grid">
-  <div class="f1-gauge-wrap">
-    <div class="f1-gauge-label">Gewinnmarge (Ziel ~20&nbsp;%)</div>
-    <div id="gauge-margin"></div>
-  </div>
-</div>        <div class="leak-grid">
+        <h2 class="section-title">Gewinnmarge</h2>
+        <p class="section-sub">
+          Dieser Tachometer zeigt eine grobe Einordnung Ihrer Gewinnmarge. 20&nbsp;% Marge entsprechen hier 100&nbsp;% Ausschlag.
+        </p>
+        <div class="leak-grid">
           <div class="f1-gauge-wrap">
             <div class="f1-gauge-label">Gewinnmarge (Ziel ~20&nbsp;%)</div>
             <div id="gauge-margin"></div>
+            <p id="margin-text" style="margin:8px 0 0; font-size:13px; color:var(--muted);"></p>
           </div>
         </div>
 
@@ -867,15 +883,24 @@
       renderF1Gauge('gauge-process',     leaksNorm.process);
       renderF1Gauge('gauge-positioning', leaksNorm.positioning);
 
-// Neuer Marge-Gauge (0–1, 20% ≈ 1.0)
-let marginGauge01 = null;
-if (payload.profitTurnover && typeof payload.profitTurnover.marginGauge01 === "number") {
-  marginGauge01 = payload.profitTurnover.marginGauge01;
-}
-if (marginGauge01 !== null) {
-  const clamped = Math.max(0, Math.min(1, marginGauge01));
-  renderF1Gauge('gauge-margin', clamped);
-}
+      // Marge-Gauge (0–1, 20% ≈ 1.0)
+      let marginGauge01 = null;
+      if (payload.profitTurnover && typeof payload.profitTurnover.marginGauge01 === "number") {
+        marginGauge01 = payload.profitTurnover.marginGauge01;
+      }
+      if (marginGauge01 !== null) {
+        const clamped = Math.max(0, Math.min(1, marginGauge01));
+        renderF1Gauge('gauge-margin', clamped);
+      }
+
+      // Interpretativer Text zur Marge
+      if (payload.profitTurnover && payload.profitTurnover.ratioBucket) {
+        const mt = document.getElementById("margin-text");
+        if (mt) {
+          mt.textContent = marginTextFromBucket(payload.profitTurnover.ratioBucket);
+        }
+      }
+
       const bookingBtn = document.getElementById('ctaBookingBtn');
       const bookingPanel = document.getElementById('bookingPanel');
       const bookingFrame = document.getElementById('bookingFrame');
