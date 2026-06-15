@@ -890,13 +890,14 @@
 
       // Marge-Gauge (0–1, 20% ≈ 1.0)
       let marginGauge01 = null;
-      if (payload.profitTurnover && typeof payload.profitTurnover.marginGauge01 === "number") {
-        marginGauge01 = payload.profitTurnover.marginGauge01;
-      }
-      if (marginGauge01 !== null) {
-        const clamped = Math.max(0, Math.min(1, marginGauge01));
-        renderF1Gauge('gauge-margin', clamped);
-      }
+if (payload.profitTurnover && typeof payload.profitTurnover.marginGauge01 === "number") {
+  marginGauge01 = payload.profitTurnover.marginGauge01;
+} else {
+  // Fallback, z.B. 0 als Marge, damit der Gauge nicht leer bleibt
+  marginGauge01 = 0;
+}
+const clamped = Math.max(0, Math.min(1, marginGauge01));
+renderF1Gauge('gauge-margin', clamped);
 
       // Interpretativer Text zur Marge
       if (payload.profitTurnover && payload.profitTurnover.ratioBucket) {
