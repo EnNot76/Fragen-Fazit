@@ -165,12 +165,18 @@
       font-size:11px;
       color:var(--muted);
     }
-    .leak-grid,.meaning-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:12px;
-      margin-top:8px;
-    }
+.leak-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:12px;
+  margin-top:8px;
+}
+.meaning-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-top:8px;
+}
     .f1-gauge-wrap,.meaning-card{
       border-radius:22px;
       padding:14px 14px 10px;
@@ -287,19 +293,24 @@
       font-family:var(--titleFont);
       cursor:pointer;
     }
-    @media (min-width:720px){
-      .leak-grid{grid-template-columns:repeat(2,1fr)}
-      .leak-grid div:last-child{grid-column:1/-1}
-      .meaning-grid{grid-template-columns:repeat(2,1fr)}
-    }
-    @media (max-width:520px){
-      body{padding:14px}
-      .hero{padding:22px 18px}
-      .panel{padding:16px 14px}
-      .kpi{grid-template-columns:1fr}
-      .logo-bar img{height:30px;}
-      .logo-bar-inner{padding:8px 18px;}
-    }
+@media (min-width:720px){
+  .leak-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+  }
+  .meaning-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+  }
+@media (max-width:520px){
+  body{padding:14px}
+  .hero{padding:22px 18px}
+  .panel{padding:16px 14px}
+  .kpi{grid-template-columns:1fr}
+  .logo-bar img{height:30px;}
+  .logo-bar-inner{padding:8px 18px;}
+  .leak-grid{
+    grid-template-columns:1fr;
+  }
+}
   </style>
 </head>
 <body>
@@ -776,44 +787,38 @@
           </div>
         </div>
 
-        <h2 class="section-title">Tachometer Ihrer 5 Gewinnhebel</h2>
-        <p class="section-sub">
-          Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt.
-        </p>
-        <div class="leak-grid">
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Pricing Leak</div>
-            <div id="gauge-pricing"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Cost Leak</div>
-            <div id="gauge-cost"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Working Capital Drag</div>
-            <div id="gauge-working"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Process Inefficiency</div>
-            <div id="gauge-process"></div>
-          </div>
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Strategic Positioning Gap</div>
-            <div id="gauge-positioning"></div>
-          </div>
-        </div>
-
-        <h2 class="section-title">Gewinnmarge</h2>
-        <p class="section-sub">
-          Dieser Tachometer zeigt eine grobe Einordnung Ihrer Gewinnmarge. 20&nbsp;% Marge entsprechen hier 100&nbsp;% Ausschlag.
-        </p>
-        <div class="leak-grid">
-          <div class="f1-gauge-wrap">
-            <div class="f1-gauge-label">Gewinnmarge (Ziel ~20&nbsp;%)</div>
-            <div id="gauge-margin"></div>
-            <p id="margin-text" style="margin:8px 0 0; font-size:13px; color:var(--muted);"></p>
-          </div>
-        </div>
+<h2 class="section-title">Tachometer Ihrer Gewinnhebel & Marge</h2>
+<p class="section-sub">
+  Die Tachometer zeigen auf einen Blick, in welchen Bereichen aktuell das größte sichtbare Potenzial liegt
+  – inklusive einer Einordnung Ihrer Gewinnmarge (Ziel ~20&nbsp;%).
+</p>
+<div class="leak-grid">
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Pricing Leak</div>
+    <div id="gauge-pricing"></div>
+  </div>
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Cost Leak</div>
+    <div id="gauge-cost"></div>
+  </div>
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Working Capital Drag</div>
+    <div id="gauge-working"></div>
+  </div>
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Process Inefficiency</div>
+    <div id="gauge-process"></div>
+  </div>
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Strategic Positioning Gap</div>
+    <div id="gauge-positioning"></div>
+  </div>
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Gewinnmarge (Ziel ~20&nbsp;%)</div>
+    <div id="gauge-margin"></div>
+    <p id="margin-text" style="margin:8px 0 0; font-size:13px; color:var(--muted);"></p>
+  </div>
+</div>
 
         <h2 class="section-title">Was die Bereiche bedeuten</h2>
         <p class="section-sub">
