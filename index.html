@@ -594,38 +594,61 @@
     }
 
     function profitTurnoverRelation(turnoverValue, profitValue) {
-      const t = mapTurnoverToLevel(turnoverValue);
-      const p = mapProfitToLevel(profitValue);
+  const tMax = getTurnoverMax(turnoverValue);
+  const pMax = getProfitMax(profitValue);
 
-      if (t === null || p === null) {
-        return {
-          status: "unknown",
-          ratio: null,
-          ratioBucket: null,
-          estimatedMargin: null,
-          marginGauge01: null
-        };
-      }
+  // Wenn wir keine sinnvollen Zahlen haben, nichts berechnen
+  if (
+    tMax === null ||
+    pMax === null ||
+    !Number.isFinite(tMax) ||
+    tMax <= 0
+  ) {
+    return {
+      status: "unknown",
+      ratio: null,
+      ratioBucket: null,
+      estimatedMargin: null,
+      marginGauge01: null
+    };
+  }
 
-      if (p > t) {
-        return {
-          status: "invalid",
-          ratio: null,
-          ratioBucket: null,
-          estimatedMargin: null,
-          marginGauge01: null
-        };
-      }
+  // Gewinn darf im Formular die Plausibilitätsprüfung ja bereits bestanden haben.
+  // Falls pMax trotzdem größer als tMax ist (z.B. durch grobe Ranges), deckeln wir auf tMax.
+  const cappedProfit = Math.min(pMax, tMax);
+  const rel = cappedProfit / tMax; // Proxy ~ Gewinn/Umsatz (0–1+)
 
-      if (p === 0) {
-        return {
-          status: "ok",
-          ratio: 0,
-          ratioBucket: "0 = Verlust / kein Gewinn",
-          estimatedMargin: 0,
-          marginGauge01: 0
-        };
-      }
+  let bucket;
+  if (rel <= 0) {
+    bucket = "0 = Verlust / kein Gewinn";
+  } else if (rel < 0.10) {
+    bucket = "1 = sehr niedrige Marge (<10%)";
+  } else if (rel < 0.16) {
+    bucket = "2 = unterdurchschnittliche Marge (10–16%)";
+  } else if (rel <= 0.22) {
+    bucket = "3 = im Zielkorridor (~16–22%)";
+  } else if (rel <= 0.35) {
+    bucket = "4 = überdurchschnittliche Marge (22–35%)";
+  } else {
+    bucket = "5 = außergewöhnlich hohe Marge (>35%)";
+  }
+
+  // Grobe Schätzung Margin% (0–1)
+  const estimatedMargin = rel;
+
+  // Normalisierung auf Ziel 20 % Marge:
+  // 20 % → 1.0, darüber bis max 1.2 gekappt
+  const gauge01Raw = estimatedMargin / 0.20;
+  const marginGauge01 = Math.max(0, Math.min(1.2, gauge01Raw));
+
+  return {
+    status: "ok",
+    ratio: rel,
+    ratioBucket: bucket,
+    estimatedMargin,
+    marginGauge01
+  };
+}
 
       const rel = p / t; // Proxy
 
