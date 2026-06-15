@@ -1526,10 +1526,11 @@ if (
       }
     });
 
-    document.addEventListener("DOMContentLoaded", ()=>{
-      updateProgress();
-      updatePills();
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  renderQuestions();
+  updatePills();
+  updateProgress();
+});
   </script>
 </body>
 </html>
