@@ -359,17 +359,24 @@
     const MAX_THEORETICAL_SCORE = 10;
     const BOOKING_URL = "https://outlook.office365.com/book/GewninnHebel@one-pointzero.com/";
 
-    function getPayloadFromQuery() {
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get('data');
-      if (!raw) return null;
-      try {
-        return JSON.parse(decodeURIComponent(raw));
-      } catch (e) {
-        console.error('Fehler beim Lesen von data', e);
-        return null;
-      }
+function getPayloadFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('data');
+  if (!raw) return null;
+
+  try {
+    // Primo tentativo: assumiamo che raw sia già una JSON string decodificata
+    return JSON.parse(raw);
+  } catch (e1) {
+    try {
+      // Secondo tentativo: raw è URL-encoded → facciamo decodeURIComponent una sola volta
+      return JSON.parse(decodeURIComponent(raw));
+    } catch (e2) {
+      console.error('Fehler beim Lesen von data', e2);
+      return null;
     }
+  }
+}
 
     function normLeak(v) {
       const n = Number(v);
