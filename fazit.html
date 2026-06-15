@@ -783,11 +783,16 @@
           </div>
         </div>
 
-        <h2 class="section-title">Gewinnmarge</h2>
-        <p class="section-sub">
-          Dieser Tachometer zeigt eine grobe Einordnung Ihrer Gewinnmarge. 20&nbsp;% Marge entsprechen hier 100&nbsp;% Ausschlag.
-        </p>
-        <div class="leak-grid">
+<h2 class="section-title">Gewinnmarge</h2>
+<p class="section-sub">
+  Dieser Tachometer zeigt eine grobe Einordnung Ihrer Gewinnmarge. 20&nbsp;% Marge entsprechen hier 100&nbsp;% Ausschlag.
+</p>
+<div class="leak-grid">
+  <div class="f1-gauge-wrap">
+    <div class="f1-gauge-label">Gewinnmarge (Ziel ~20&nbsp;%)</div>
+    <div id="gauge-margin"></div>
+  </div>
+</div>        <div class="leak-grid">
           <div class="f1-gauge-wrap">
             <div class="f1-gauge-label">Gewinnmarge (Ziel ~20&nbsp;%)</div>
             <div id="gauge-margin"></div>
@@ -862,16 +867,15 @@
       renderF1Gauge('gauge-process',     leaksNorm.process);
       renderF1Gauge('gauge-positioning', leaksNorm.positioning);
 
-      // Neuer Marge-Gauge (0–1, 20% ≈ 1.0)
-      let marginGauge01 = null;
-      if (payload.profitTurnover && typeof payload.profitTurnover.marginGauge01 === "number") {
-        marginGauge01 = payload.profitTurnover.marginGauge01;
-      }
-      if (marginGauge01 !== null) {
-        const clamped = Math.max(0, Math.min(1, marginGauge01));
-        renderF1Gauge('gauge-margin', clamped);
-      }
-
+// Neuer Marge-Gauge (0–1, 20% ≈ 1.0)
+let marginGauge01 = null;
+if (payload.profitTurnover && typeof payload.profitTurnover.marginGauge01 === "number") {
+  marginGauge01 = payload.profitTurnover.marginGauge01;
+}
+if (marginGauge01 !== null) {
+  const clamped = Math.max(0, Math.min(1, marginGauge01));
+  renderF1Gauge('gauge-margin', clamped);
+}
       const bookingBtn = document.getElementById('ctaBookingBtn');
       const bookingPanel = document.getElementById('bookingPanel');
       const bookingFrame = document.getElementById('bookingFrame');
