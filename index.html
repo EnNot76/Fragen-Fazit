@@ -142,9 +142,7 @@
       grid-template-columns:1fr 1fr;
       gap:12px;
     }
-    .field{
-      margin-bottom:12px;
-    }
+    .field{margin-bottom:12px;}
     label{
       display:block;
       font-size:12px;
@@ -561,99 +559,99 @@
       CLOSE_FAZIT: "CLOSE_FAZIT"
     };
 
-    // -------------------------
-    // Umsatz/Gewinn Mapping + Marge
-    // -------------------------
+    // Umsatz/Gewinn → numerische Obergrenzen
+    function parseEuroNumber(str) {
+      if (!str) return null;
+      let s = String(str)
+        .replace(/€/g, "")
+        .replace(/\s/g, "");
 
-    function mapTurnoverToLevel(value) {
-      switch (value) {
-        case "Unter €250.000":        return 1;
-        case "€250.000 -- €500.000":  return 2;
-        case "€500.000 -- €1 Mio.":   return 3;
-        case "€1 Mio. -- €2 Mio.":    return 4;
-        case "€2 Mio. -- €5 Mio.":    return 5;
-        case "Über €5 Mio.":          return 6;
-        default:                      return null;
-      }
+      // "1Mio." / "1 Mio." → 1000000
+      s = s.replace(/(\d+)\s*Mio\.?/i, "$1000000");
+
+      // tausender-Punkte entfernen
+      s = s.replace(/\./g, "");
+
+      const n = parseInt(s, 10);
+      return Number.isNaN(n) ? null : n;
     }
 
-    function mapProfitToLevel(value) {
-      switch (value) {
-        case "Verlust / kein Gewinn":      return 0;
-        case "Unter €25.000":              return 1;
-        case "€25.000 -- €50.000":         return 2;
-        case "€50.000 -- €100.000":        return 3;
-        case "€100.000 -- €250.000":       return 4;
-        case "€250.000 -- €500.000":       return 5;
-        case "€500.000 -- €1 Mio.":        return 6;
-        case "Über €1 Mio.":               return 7;
-        case "Schwer einzuschätzen":       return null;
-        case "Möchte ich nicht angeben":   return null;
-        default:                           return null;
+    function getTurnoverMax(value) {
+      if (!value) return null;
+      value = value.trim();
+
+      if (value.startsWith("Unter")) {
+        const num = parseEuroNumber(value.replace("Unter", ""));
+        return num;
       }
+
+      if (value.startsWith("Über")) {
+        return Infinity;
+      }
+
+      const parts = value.split("--");
+      if (parts.length === 2) {
+        const upper = parseEuroNumber(parts[1]);
+        return upper;
+      }
+
+      return null;
+    }
+
+    function getProfitMax(value) {
+      if (!value) return null;
+      value = value.trim();
+
+      if (value === "Verlust / kein Gewinn") return 0;
+
+      if (value === "Schwer einzuschätzen" || value === "Möchte ich nicht angeben") {
+        return null;
+      }
+
+      if (value.startsWith("Über")) {
+        return Infinity;
+      }
+
+      if (value.startsWith("Unter")) {
+        const num = parseEuroNumber(value.replace("Unter", ""));
+        return num;
+      }
+
+      const parts = value.split("--");
+      if (parts.length === 2) {
+        const upper = parseEuroNumber(parts[1]);
+        return upper;
+      }
+
+      return null;
     }
 
     function profitTurnoverRelation(turnoverValue, profitValue) {
-  const tMax = getTurnoverMax(turnoverValue);
-  const pMax = getProfitMax(profitValue);
+      const tMax = getTurnoverMax(turnoverValue);
+      const pMax = getProfitMax(profitValue);
 
-  // Wenn wir keine sinnvollen Zahlen haben, nichts berechnen
-  if (
-    tMax === null ||
-    pMax === null ||
-    !Number.isFinite(tMax) ||
-    tMax <= 0
-  ) {
-    return {
-      status: "unknown",
-      ratio: null,
-      ratioBucket: null,
-      estimatedMargin: null,
-      marginGauge01: null
-    };
-  }
+      if (
+        tMax === null ||
+        pMax === null ||
+        !Number.isFinite(tMax) ||
+        tMax <= 0
+      ) {
+        return {
+          status: "unknown",
+          ratio: null,
+          ratioBucket: null,
+          estimatedMargin: null,
+          marginGauge01: null
+        };
+      }
 
-  // Gewinn darf im Formular die Plausibilitätsprüfung ja bereits bestanden haben.
-  // Falls pMax trotzdem größer als tMax ist (z.B. durch grobe Ranges), deckeln wir auf tMax.
-  const cappedProfit = Math.min(pMax, tMax);
-  const rel = cappedProfit / tMax; // Proxy ~ Gewinn/Umsatz (0–1+)
-
-  let bucket;
-  if (rel <= 0) {
-    bucket = "0 = Verlust / kein Gewinn";
-  } else if (rel < 0.10) {
-    bucket = "1 = sehr niedrige Marge (<10%)";
-  } else if (rel < 0.16) {
-    bucket = "2 = unterdurchschnittliche Marge (10–16%)";
-  } else if (rel <= 0.22) {
-    bucket = "3 = im Zielkorridor (~16–22%)";
-  } else if (rel <= 0.35) {
-    bucket = "4 = überdurchschnittliche Marge (22–35%)";
-  } else {
-    bucket = "5 = außergewöhnlich hohe Marge (>35%)";
-  }
-
-  // Grobe Schätzung Margin% (0–1)
-  const estimatedMargin = rel;
-
-  // Normalisierung auf Ziel 20 % Marge:
-  // 20 % → 1.0, darüber bis max 1.2 gekappt
-  const gauge01Raw = estimatedMargin / 0.20;
-  const marginGauge01 = Math.max(0, Math.min(1.2, gauge01Raw));
-
-  return {
-    status: "ok",
-    ratio: rel,
-    ratioBucket: bucket,
-    estimatedMargin,
-    marginGauge01
-  };
-}
-
-      const rel = p / t; // Proxy
+      const cappedProfit = Math.min(pMax, tMax);
+      const rel = cappedProfit / tMax;
 
       let bucket;
-      if (rel < 0.10) {
+      if (rel <= 0) {
+        bucket = "0 = Verlust / kein Gewinn";
+      } else if (rel < 0.10) {
         bucket = "1 = sehr niedrige Marge (<10%)";
       } else if (rel < 0.16) {
         bucket = "2 = unterdurchschnittliche Marge (10–16%)";
@@ -665,24 +663,20 @@
         bucket = "5 = außergewöhnlich hohe Marge (>35%)";
       }
 
-      // grobe Schätzung: rel -> Margin%
-      const estimatedMargin = rel * 0.3;          // 0–0.5+
-      const gauge01Raw      = estimatedMargin / 0.20; // 20% → 1.0
-      const gauge01         = Math.max(0, Math.min(1.2, gauge01Raw));
+      const estimatedMargin = rel;
+      const gauge01Raw = estimatedMargin / 0.20;
+      const marginGauge01 = Math.max(0, Math.min(1.2, gauge01Raw));
 
       return {
         status: "ok",
         ratio: rel,
         ratioBucket: bucket,
         estimatedMargin,
-        marginGauge01: gauge01
+        marginGauge01
       };
     }
 
-    // -------------------------
     // Fragen
-    // -------------------------
-
     const qData = [
       {
         id:"q1",
@@ -917,6 +911,7 @@
         </label>`).join("")}</div>`;
     }
 
+    // Render domande subito
     qData.forEach((q,idx)=>{
       const div=document.createElement("div");
       div.className="q";
@@ -1076,85 +1071,6 @@
       });
     });
 
-// "€25.000" / "25.000" / "  1 Mio." → numero in Euro (approssimato)
-function parseEuroNumber(str) {
-  if (!str) return null;
-  let s = String(str)
-    .replace(/€/g, "")
-    .replace(/\s/g, "");
-
-  // "1Mio." / "1Mio" / "1 Mio." → 1.000.000
-  s = s.replace(/(\d+)\s*Mio\.?/i, "$1000000");
-
-  // rimuove i punti come separatore migliaia
-  s = s.replace(/\./g, "");
-
-  const n = parseInt(s, 10);
-  return Number.isNaN(n) ? null : n;
-}
-
-// Estrae il limite superiore "ragionevole" per l'Umsatz
-function getTurnoverMax(value) {
-  if (!value) return null;
-
-  value = value.trim();
-
-  if (value.startsWith("Unter")) {
-    // Unter €250.000 → 250.000
-    const num = parseEuroNumber(value.replace("Unter", ""));
-    return num;
-  }
-
-  if (value.startsWith("Über")) {
-    // Über €5 Mio. → trattiamo come "senza limite superiore" per questo check
-    return Infinity;
-  }
-
-  // Range tipo "€250.000 -- €500.000"
-  const parts = value.split("--");
-  if (parts.length === 2) {
-    const upper = parseEuroNumber(parts[1]);
-    return upper;
-  }
-
-  return null;
-}
-
-// Estrae il limite superiore "ragionevole" per il Gewinn
-function getProfitMax(value) {
-  if (!value) return null;
-
-  value = value.trim();
-
-  if (value === "Verlust / kein Gewinn") {
-    return 0;
-  }
-
-  if (value === "Schwer einzuschätzen" || value === "Möchte ich nicht angeben") {
-    return null; // niente check in questi casi
-  }
-
-  if (value.startsWith("Über")) {
-    // Über €1 Mio. → anche qui Infinity
-    return Infinity;
-  }
-
-  if (value.startsWith("Unter")) {
-    // Unter €25.000 → 25.000
-    const num = parseEuroNumber(value.replace("Unter", ""));
-    return num;
-  }
-
-  // Range tipo "€25.000 -- €50.000"
-  const parts = value.split("--");
-  if (parts.length === 2) {
-    const upper = parseEuroNumber(parts[1]);
-    return upper;
-  }
-
-  return null;
-}
-
     function validateForm(){
       clearError();
       document.querySelectorAll(".invalid").forEach(el=>el.classList.remove("invalid"));
@@ -1166,7 +1082,6 @@ function getProfitMax(value) {
       const now=new Date().getFullYear();
       const missingFields = [];
 
-      // reset Umsatz/Gewinn inline error
       const tpError = document.getElementById("turnoverProfitError");
       if (tpError) {
         tpError.textContent = "";
@@ -1207,40 +1122,39 @@ function getProfitMax(value) {
         }
       }
 
-// --- Plausibilitäts-Check: Gewinn darf Jahresumsatz nicht übersteigen ---
-const turnoverEl = document.getElementById("turnover");
-const profitEl   = document.getElementById("profit");
+      const turnoverEl = document.getElementById("turnover");
+      const profitEl   = document.getElementById("profit");
 
-const turnoverVal = turnoverEl.value;
-const profitVal   = profitEl.value;
+      const turnoverVal = turnoverEl.value;
+      const profitVal   = profitEl.value;
 
-const turnoverMax = getTurnoverMax(turnoverVal);
-const profitMax   = getProfitMax(profitVal);
+      const turnoverMax = getTurnoverMax(turnoverVal);
+      const profitMax   = getProfitMax(profitVal);
 
-// Nur prüfen, wenn wir beide Werte numerisch sinnvoll lesen konnten
-if (
-  turnoverMax !== null &&
-  profitMax   !== null &&
-  profitMax > turnoverMax
-) {
-  valid = false;
+      if (
+        turnoverMax !== null &&
+        profitMax   !== null &&
+        profitMax > turnoverMax
+      ) {
+        valid = false;
 
-  turnoverEl.classList.add("invalid");
-  turnoverEl.setAttribute("aria-invalid","true");
-  profitEl.classList.add("invalid");
-  profitEl.setAttribute("aria-invalid","true");
+        turnoverEl.classList.add("invalid");
+        turnoverEl.setAttribute("aria-invalid","true");
+        profitEl.classList.add("invalid");
+        profitEl.setAttribute("aria-invalid","true");
 
-  missingFields.push(
-    "Plausibilitätscheck: Der Jahresgewinn vor Steuern darf das gewählte Jahresumsatzniveau nicht übersteigen."
-  );
+        missingFields.push(
+          "Plausibilitätscheck: Der Jahresgewinn vor Steuern darf das gewählte Jahresumsatzniveau nicht übersteigen."
+        );
 
-  const tpError = document.getElementById("turnoverProfitError");
-  if (tpError) {
-    tpError.textContent =
-      "Bitte prüfen Sie: Der Jahresgewinn vor Steuern kann nicht höher als der Jahresumsatz sein.";
-    tpError.classList.add("show");
-  }
-}
+        const tpErr = document.getElementById("turnoverProfitError");
+        if (tpErr) {
+          tpErr.textContent =
+            "Bitte prüfen Sie: Der Jahresgewinn vor Steuern kann nicht höher als der Jahresumsatz sein.";
+          tpErr.classList.add("show");
+        }
+      }
+
       const requiredQs=["q1","q2","q3","q5","q8","q9","q10","q11","q12","q13"];
       requiredQs.forEach(name=>{
         if(!document.querySelector(`input[name="${name}"]:checked`)){
@@ -1272,265 +1186,65 @@ if (
         errorMsg += "</ul>";
         showError(errorMsg);
       }
+
       return valid;
     }
 
-    // -------------------------
-    // Scoring
-    // -------------------------
-
-    function scoreRiskMap(a){
-      const leaks={pricing:0,cost:0,workingCapital:0,process:0,positioning:0};
-      const q1=a[0], q2=a[1]??2, q3=a[2], q4=a[3]||[], q5=a[4]??2, q6=a[5]||[], q7=a[6]||[], q8=a[7]??2, q9=a[8], q10=a[9]??2;
-
-      if(q1>=3) leaks.pricing+=1;
-      if(q1>=4) leaks.pricing+=2;
-      if(q1===5) leaks.pricing+=1;
-      if(q2<=2) leaks.pricing+=2;
-      if(q2===3) leaks.pricing+=1;
-      if(["Preiswiderstand","Unklare Positionierung","Zu wenig Nachfassen","Kein systematischer Vertriebsprozess","Niedrige Abschlussquote"].some(x=>q4.includes(x))) leaks.pricing+=2;
-      if(["Unklare Positionierung","Preiswiderstand","Zu wenig Anfragen","Zu viele unpassende Anfragen"].some(x=>q4.includes(x))) leaks.positioning+=2;
-      if(q3>=3) leaks.positioning+=1;
-      if(q3>=4) leaks.positioning+=1;
-      if(q3>=4) leaks.pricing+=1;
-      if(q5<=2) leaks.cost+=2;
-      if(q5===3) leaks.cost+=1;
-      if(["Nacharbeit / Fehler","Administration","Software","Externe Dienstleister","Finanzierungskosten","Bankgebühren"].some(x=>q6.includes(x))) leaks.cost+=2;
-      if(["Personal","Material","Energie","Miete","Logistik"].some(x=>q6.includes(x))) leaks.cost+=1;
-      if(["Feuerwehr-Themen","Doppelte Arbeit","Unklare Verantwortlichkeiten","Nachfragen wegen fehlender Informationen","Abstimmung & Koordination","Meetings","Administration"].some(x=>q7.includes(x))) leaks.process+=2;
-      if(q8>=4) leaks.process+=2;
-      if(q8===3) leaks.process+=1;
-      if(q10>=4) leaks.process+=1;
-      if(q10===5) leaks.process+=1;
-      if(["Kontostand","Bauchgefühl","Nicht wirklich strukturiert"].includes(q9)) leaks.workingCapital+=2;
-      if(["Monatsbericht","Gewinn- und Verlustrechnung","Steuerberater / externe Auswertung"].includes(q9)) leaks.workingCapital+=1;
-      if(q10>=4) leaks.workingCapital+=2;
-      if(q10===3) leaks.workingCapital+=1;
-
-      return leaks;
-    }
-
-    function leakRanking(leaks){
-      return Object.entries(leaks)
-        .sort((a,b)=>b[1]-a[1])
-        .filter(x=>x[1]>0)
-        .map(x=>({key:x[0],score:x[1]}));
-    }
-
-    function readinessSummary(a){
-      return {
-        urgency:a[10],
-        openness:a[11],
-        speed:a[12]
-      };
-    }
-
-    function leakName(key){
-      const map={
-        pricing:"Pricing Leak",
-        cost:"Cost Leak",
-        workingCapital:"Working Capital Drag",
-        process:"Process Inefficiency",
-        positioning:"Strategic Positioning Gap"
-      };
-      return map[key] || "–";
-    }
-
     function buildPayload(){
-      const answers = getAnswers();
-      const leaks   = scoreRiskMap(answers);
-      const ranking = leakRanking(leaks);
-      const top     = ranking[0];
-      const bench   = (function(){
-        const max=Math.max(...Object.values(leaks));
-        if(max<=1) return {text:"Benchmark-Level 1", cls:"good"};
-        if(max===2) return {text:"Benchmark-Level 2", cls:"good"};
-        if(max===3) return {text:"Benchmark-Level 3", cls:"warn"};
-        return {text:"Benchmark-Level 4", cls:"bad"};
-      })();
-
-      const topLeakText = top ? leakName(top.key) : "–";
-      const benchText = bench.text + ": Das Unternehmen zeigt mehrere Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.";
-
-      const company = document.getElementById("companyName").value.trim() || "Ihr Unternehmen";
-
-      let industryValue = document.getElementById("industry").value;
-      if(industryValue === "Sonstiges"){
-        industryValue = document.getElementById("otherIndustry").value.trim();
-      }
-
       const turnoverValue = document.getElementById("turnover").value;
       const profitValue   = document.getElementById("profit").value;
       const relation      = profitTurnoverRelation(turnoverValue, profitValue);
 
-      return {
-        _id: Math.random().toString(36).slice(2),
-        timestamp: new Date().toISOString(),
-        companyName: company,
-        foundingYear: Number(document.getElementById("foundingYear").value || 0),
+      const answers = getAnswers();
+
+      const payload = {
+        timestamp: Date.now(),
+        companyName: document.getElementById("companyName").value.trim(),
+        foundingYear: document.getElementById("foundingYear").value.trim(),
         kontaktperson: document.getElementById("kontaktperson").value.trim(),
         telefonnummer: document.getElementById("telefonnummer").value.trim(),
         email: document.getElementById("email").value.trim(),
-        industry: industryValue,
+        industry: document.getElementById("industry").value,
+        otherIndustry: document.getElementById("otherIndustry").value.trim(),
         turnover: turnoverValue,
         profit: profitValue,
         notes: document.getElementById("notes").value.trim(),
         answers,
-        leaks,
-        benchmark: benchText,
-        topLeak: topLeakText,
-        readiness: readinessSummary(answers),
         profitTurnover: relation
       };
+
+      return payload;
     }
 
-    async function loadCurrentBinAndAppend(entry){
-      const url = `${CONFIG.jsonbinUrl}/${CONFIG.jsonbinBinId}/latest`;
-      const putUrl = `${CONFIG.jsonbinUrl}/${CONFIG.jsonbinBinId}`;
-
-      const res = await fetch(url,{
-        headers:{ "X-Master-Key": CONFIG.jsonbinApiKey }
-      });
-
-      if(!res.ok){
-        if(res.status === 404){
-          const newList = { audits: [entry] };
-          const putRes = await fetch(putUrl,{
-            method:"PUT",
-            headers:{
-              "Content-Type":"application/json",
-              "X-Master-Key": CONFIG.jsonbinApiKey
-            },
-            body:JSON.stringify(newList)
-          });
-          if(!putRes.ok) throw new Error("PUT 404->neu fehlgeschlagen");
-          return;
-        }
-        throw new Error("Fehler beim Laden aus JSONBin ("+res.status+")");
-      }
-
-      const json = await res.json();
-      const record = json.record || {};
-      const list = Array.isArray(record.audits) ? record.audits : [];
-
-      list.push(entry);
-
-      const updated = { audits:list };
-
-      const putRes = await fetch(putUrl,{
-        method:"PUT",
-        headers:{
-          "Content-Type":"application/json",
-          "X-Master-Key": CONFIG.jsonbinApiKey
-        },
-        body:JSON.stringify(updated)
-      });
-
-      if(!putRes.ok){
-        throw new Error("Fehler beim Speichern in JSONBin ("+putRes.status+")");
-      }
-    }
-
-    function showToast(message, type = "info", duration = 3000){
-      const toast = document.createElement("div");
-      toast.className = `toast ${type}`;
-      toast.setAttribute("role","status");
-      toast.innerHTML = `<div>${message}</div>`;
-      toastContainer.appendChild(toast);
-
-      requestAnimationFrame(() => toast.classList.add("show"));
-
-      const hideAfter = Math.max(1500, duration);
-      const timeout = setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(()=>{ toast.remove(); }, 220);
-      }, hideAfter);
-
-      toast.addEventListener("click", () => {
-        clearTimeout(timeout);
-        toast.classList.remove("show");
-        setTimeout(()=>{ toast.remove(); }, 200);
-      });
-    }
-
-    function openFazitOverlay(payload){
+    function openFazit(payload){
       const encoded = encodeURIComponent(JSON.stringify(payload));
-      fazitFrame.src = "fazit.html?data=" + encoded;
+      const url = `fazit.html?data=${encoded}`;
+
+      fazitFrame.src = url;
       fazitOverlay.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
     }
 
-    function closeFazitOverlay(){
-      fazitOverlay.classList.add("hidden");
-      fazitFrame.src = "";
-      document.body.style.overflow = "";
-    }
-
-    closeFazitBtn.addEventListener("click", closeFazitOverlay);
-
-    // Print/PDF aus Fazit-Fenster (wird von fazit.html aufgerufen)
-    function openPrintWindowForPayload(payload){
-      const printWin = window.open("", "blank");
-      if (!printWin) {
-        showToast("Pop-up wurde blockiert. Bitte Pop-ups für diese Seite erlauben.", "error", 4500);
-        return false;
-      }
-      // fazit.html übernimmt das Layout, hier nur Fallback
-      printWin.document.write("<p>Bitte aus der Ergebnisansicht heraus drucken.</p>");
-      printWin.document.close();
-      return true;
-    }
-
-    // Buttons
-    document.getElementById("revealBtn").addEventListener("click", async ()=>{
+    document.getElementById("revealBtn").addEventListener("click", ()=>{
       if(!validateForm()) return;
+
       const payload = buildPayload();
-      openFazitOverlay(payload);
-      try {
-        await loadCurrentBinAndAppend(payload);
-        showToast("Ergebnis wurde gespeichert.", "success", 3500);
-      } catch(err){
-        console.error(err);
-        showToast("Fehler beim Speichern in JSONBin.", "error", 4500);
-      }
+      openFazit(payload);
     });
 
     document.getElementById("resetBtn").addEventListener("click", ()=>{
-      if(!confirm("Möchten Sie alle Eingaben wirklich zurücksetzen?")) return;
-      document.querySelectorAll("input, select, textarea").forEach(el=>{
-        if(el.type==="checkbox" || el.type==="radio") el.checked=false;
-        else el.value="";
-      });
-      document.getElementById("otherIndustry").style.display="none";
-      clearError();
-      document.querySelectorAll(".inline-error").forEach(e=>{
-        e.textContent="";
-        e.classList.remove("show");
-      });
-      document.querySelectorAll(".invalid").forEach(el=>el.classList.remove("invalid"));
-      document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.removeAttribute("aria-invalid"));
+      if(!confirm("Möchten Sie den Quick Check wirklich zurücksetzen?")) return;
+      window.location.reload();
+    });
+
+    closeFazitBtn.addEventListener("click", ()=>{
+      fazitOverlay.classList.add("hidden");
+      fazitFrame.src = "about:blank";
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
       updatePills();
       updateProgress();
-      showToast("Formular wurde zurückgesetzt.", "info", 2500);
     });
-
-    window.addEventListener("message", event=>{
-      if(!event.data || !event.data.type) return;
-      if(event.data.type === MESSAGE_TYPES.CLOSE_FAZIT){
-        closeFazitOverlay();
-      }
-      if(event.data.type === MESSAGE_TYPES.OPEN_BOOKING_WITH_PDF){
-        const payload = event.data.payload;
-        const ok = openPrintWindowForPayload(payload);
-        if(ok) window.open(BOOKING_URL, "blank");
-      }
-    });
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderQuestions();
-  updatePills();
-  updateProgress();
-});
   </script>
 </body>
 </html>
